@@ -40,13 +40,19 @@ export default async function TenantsListPage({
       </Link>
       <AddProspectForm />
       <form className="mb-4 flex gap-2" method="get">
-        <input name="search" defaultValue={search ?? ""} placeholder="Search by name" className="border rounded px-2 py-1" />
-        <select name="status" defaultValue={status ?? ""} className="border rounded px-2 py-1">
-          <option value="">All statuses</option>
-          <option value="PROSPECT">Prospect</option>
-          <option value="ACTIVE">Active</option>
-          <option value="MOVED_OUT">Moved out</option>
-        </select>
+        <label className="block text-sm">
+          Search
+          <input name="search" defaultValue={search ?? ""} placeholder="Search by name" className="border rounded px-2 py-1" />
+        </label>
+        <label className="block text-sm">
+          Status
+          <select name="status" defaultValue={status ?? ""} className="border rounded px-2 py-1">
+            <option value="">All statuses</option>
+            <option value="PROSPECT">Prospect</option>
+            <option value="ACTIVE">Active</option>
+            <option value="MOVED_OUT">Moved out</option>
+          </select>
+        </label>
         <button type="submit" className="border rounded px-3 py-1">Filter</button>
       </form>
       <ul className="space-y-2">
