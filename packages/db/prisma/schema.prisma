@@ -1,0 +1,225 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users         User[]
+  buildings     Building[]
+  tenants       Tenant[]
+  notifications Notification[]
+}
+
+enum UserRole {
+  OWNER
+}
+
+model User {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  email          String   @unique
+  passwordHash   String
+  name           String
+  role           UserRole @default(OWNER)
+  createdAt      DateTime @default(now())
+
+  recordedPayments Payment[]
+
+  @@index([organizationId])
+}
+
+model Building {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  address        String?
+  createdAt      DateTime @default(now())
+
+  floors Floor[]
+
+  @@index([organizationId])
+}
+
+model Floor {
+  id             String   @id @default(cuid())
+  organizationId String
+  buildingId     String
+  building       Building @relation(fields: [buildingId], references: [id])
+  label          String
+  createdAt      DateTime @default(now())
+
+  rooms Room[]
+
+  @@index([organizationId])
+  @@index([buildingId])
+}
+
+model Room {
+  id             String  @id @default(cuid())
+  organizationId String
+  floorId        String
+  floor          Floor   @relation(fields: [floorId], references: [id])
+  name           String
+  capacity       Int
+  monthlyRate    Decimal @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  tenancies Tenancy[]
+
+  @@index([organizationId])
+  @@index([floorId])
+}
+
+enum TenantStatus {
+  PROSPECT
+  ACTIVE
+  MOVED_OUT
+}
+
+model Tenant {
+  id               String       @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  firstName        String
+  lastName         String
+  email            String?
+  phone            String?
+  emergencyContact String?
+  status           TenantStatus @default(PROSPECT)
+  createdAt        DateTime     @default(now())
+
+  tenancies              Tenancy[]
+  notificationRecipients NotificationRecipient[]
+
+  @@index([organizationId])
+}
+
+enum TenancyStatus {
+  ACTIVE
+  ENDED
+}
+
+model Tenancy {
+  id             String        @id @default(cuid())
+  organizationId String
+  tenantId       String
+  tenant         Tenant        @relation(fields: [tenantId], references: [id])
+  roomId         String
+  room           Room          @relation(fields: [roomId], references: [id])
+  startDate      DateTime
+  endDate        DateTime?
+  monthlyRate    Decimal       @db.Decimal(10, 2)
+  depositAmount  Decimal       @db.Decimal(10, 2)
+  status         TenancyStatus @default(ACTIVE)
+  createdAt      DateTime      @default(now())
+
+  invoices Invoice[]
+
+  @@index([organizationId])
+  @@index([tenantId])
+  @@index([roomId])
+}
+
+enum InvoiceStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  organizationId String
+  tenancyId      String
+  tenancy        Tenancy       @relation(fields: [tenancyId], references: [id])
+  periodStart    DateTime
+  periodEnd      DateTime
+  amountDue      Decimal       @db.Decimal(10, 2)
+  dueDate        DateTime
+  status         InvoiceStatus @default(PENDING)
+  createdAt      DateTime      @default(now())
+
+  payments Payment[]
+
+  @@index([organizationId])
+  @@index([tenancyId])
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  GCASH
+  OTHER
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  organizationId   String
+  invoiceId        String
+  invoice          Invoice       @relation(fields: [invoiceId], references: [id])
+  amountPaid       Decimal       @db.Decimal(10, 2)
+  method           PaymentMethod
+  paidAt           DateTime      @default(now())
+  recordedByUserId String
+  recordedBy       User          @relation(fields: [recordedByUserId], references: [id])
+  notes            String?
+  createdAt        DateTime      @default(now())
+
+  @@index([organizationId])
+  @@index([invoiceId])
+}
+
+enum NotificationScope {
+  ALL
+  BUILDING
+  ROOM
+  TENANT
+}
+
+enum NotificationTrigger {
+  MANUAL
+  AUTO_REMINDER
+}
+
+model Notification {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id])
+  subject        String
+  body           String
+  scope          NotificationScope
+  trigger        NotificationTrigger
+  sentAt         DateTime            @default(now())
+
+  recipients NotificationRecipient[]
+
+  @@index([organizationId])
+}
+
+enum DeliveryStatus {
+  SENT
+  FAILED
+}
+
+model NotificationRecipient {
+  id             String         @id @default(cuid())
+  organizationId String
+  notificationId String
+  notification   Notification   @relation(fields: [notificationId], references: [id])
+  tenantId       String
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  deliveryStatus DeliveryStatus @default(SENT)
+
+  @@index([organizationId])
+  @@index([notificationId])
+}
