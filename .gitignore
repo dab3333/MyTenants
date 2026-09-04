@@ -4,3 +4,6 @@ dist
 .env
 .env.local
 *.log
+test-results
+playwright-report
+next-env.d.ts

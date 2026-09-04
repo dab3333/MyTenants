@@ -9,5 +9,8 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  test: { environment: "node" },
+  test: {
+    environment: "node",
+    exclude: ["**/node_modules/**", "**/e2e/**"],
+  },
 });
