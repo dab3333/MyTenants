@@ -40,6 +40,23 @@ describe("scoped.$transaction composability (foundational check)", () => {
     });
     expect(foundInTx).toBeNull();
   });
+
+  it("rolls back a write made earlier in the transaction when a later step throws", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Tx Rollback Check" } });
+    const scoped = createScopedClient(org.id);
+
+    await expect(
+      scoped.$transaction(async (tx) => {
+        await tx.tenant.create({
+          data: { organizationId: org.id, firstName: "RollbackProbe", lastName: "ShouldNotPersist", status: "PROSPECT" },
+        });
+        throw new Error("FORCE_ROLLBACK");
+      })
+    ).rejects.toThrow("FORCE_ROLLBACK");
+
+    const survived = await prisma.tenant.findFirst({ where: { organizationId: org.id, firstName: "RollbackProbe" } });
+    expect(survived).toBeNull();
+  });
 });
 
 describe("POST /api/rooms/[id]/tenancies", () => {
