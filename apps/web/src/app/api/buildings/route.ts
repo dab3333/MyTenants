@@ -23,6 +23,7 @@ export async function POST(request: Request) {
   const scoped = createScopedClient(session.organizationId);
   const building = await scoped.building.create({
     data: {
+      organizationId: session.organizationId,
       name: body.name.trim(),
       address: typeof body.address === "string" && body.address.trim() !== "" ? body.address.trim() : null,
     },

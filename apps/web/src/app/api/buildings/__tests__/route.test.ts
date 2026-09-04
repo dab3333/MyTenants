@@ -18,7 +18,7 @@ describe("GET/POST /api/buildings", () => {
   });
 
   it("returns 401 when unauthenticated", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
     const res = await GET();
     expect(res.status).toBe(401);
   });

@@ -11,7 +11,7 @@ describe("requireOrgSession", () => {
   });
 
   it("returns ok:false with a 401 response when there is no session", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
 
     const result = await requireOrgSession();
 
