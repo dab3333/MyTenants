@@ -49,6 +49,10 @@ export function createScopedClient(organizationId: string) {
             mutableArgs.where = { ...(mutableArgs.where ?? {}), organizationId };
           }
 
+          // NOTE: any `organizationId` a caller passes inside `data`/`create`/`update`
+          // below is inert — it exists in caller code only to satisfy Prisma's
+          // generated type (which requires the field), because this extension
+          // always overwrites it with the scoped `organizationId` before the query runs.
           if (CREATE_OPS.has(operation)) {
             if (operation === "create") {
               mutableArgs.data = { ...((mutableArgs.data as Record<string, unknown>) ?? {}), organizationId };

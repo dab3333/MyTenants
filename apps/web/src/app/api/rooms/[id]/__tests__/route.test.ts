@@ -34,6 +34,45 @@ describe("PATCH /api/rooms/[id]", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.room.capacity).toBe(3);
+    expect(Number(data.room.monthlyRate)).toBe(3500);
+  });
+
+  it("returns 400 when capacity is present but not a positive integer", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Room Update Invalid Capacity" } });
+    const building = await prisma.building.create({ data: { organizationId: org.id, name: "Hall" } });
+    const floor = await prisma.floor.create({ data: { organizationId: org.id, buildingId: building.id, label: "1F" } });
+    const room = await prisma.room.create({
+      data: { organizationId: org.id, floorId: floor.id, name: "101", capacity: 2, monthlyRate: "3000.00" },
+    });
+
+    sessionFor(org.id);
+    const res = await PATCH(
+      new Request("http://localhost", { method: "PATCH", body: JSON.stringify({ capacity: 0 }) }),
+      { params: Promise.resolve({ id: room.id }) }
+    );
+
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBe("capacity must be a positive integer");
+  });
+
+  it("returns 400 when monthlyRate is present but negative", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Room Update Invalid Rate" } });
+    const building = await prisma.building.create({ data: { organizationId: org.id, name: "Hall" } });
+    const floor = await prisma.floor.create({ data: { organizationId: org.id, buildingId: building.id, label: "1F" } });
+    const room = await prisma.room.create({
+      data: { organizationId: org.id, floorId: floor.id, name: "101", capacity: 2, monthlyRate: "3000.00" },
+    });
+
+    sessionFor(org.id);
+    const res = await PATCH(
+      new Request("http://localhost", { method: "PATCH", body: JSON.stringify({ monthlyRate: -5 }) }),
+      { params: Promise.resolve({ id: room.id }) }
+    );
+
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBe("monthlyRate must be a non-negative number");
   });
 
   it("returns 404 when updating another organization's room", async () => {

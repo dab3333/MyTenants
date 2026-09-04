@@ -20,7 +20,7 @@ export function AddFloorForm({ buildingId }: { buildingId: string }) {
       setLabel("");
       router.refresh();
     } else {
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setError(data.error ?? "Failed to add floor");
     }
   }

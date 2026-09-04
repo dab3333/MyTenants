@@ -16,6 +16,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const existing = await scoped.room.findFirst({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
+  if ("capacity" in body && (typeof body.capacity !== "number" || !Number.isInteger(body.capacity) || body.capacity < 1)) {
+    return NextResponse.json({ error: "capacity must be a positive integer" }, { status: 400 });
+  }
+  if ("monthlyRate" in body && (typeof body.monthlyRate !== "number" || body.monthlyRate < 0)) {
+    return NextResponse.json({ error: "monthlyRate must be a non-negative number" }, { status: 400 });
+  }
+
   const data: { name?: string; capacity?: number; monthlyRate?: number } = {};
   if (typeof body.name === "string" && body.name.trim() !== "") data.name = body.name.trim();
   if (typeof body.capacity === "number" && Number.isInteger(body.capacity) && body.capacity >= 1) {

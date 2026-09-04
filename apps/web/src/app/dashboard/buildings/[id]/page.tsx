@@ -11,7 +11,7 @@ function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "
   return "partial";
 }
 
-const STATUS_CLASSES: Record<string, string> = {
+const STATUS_CLASSES: Record<"vacant" | "partial" | "full", string> = {
   vacant: "bg-gray-100",
   partial: "bg-yellow-100",
   full: "bg-red-100",

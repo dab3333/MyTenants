@@ -24,7 +24,7 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
       setMonthlyRate("0");
       router.refresh();
     } else {
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setError(data.error ?? "Failed to add room");
     }
   }
