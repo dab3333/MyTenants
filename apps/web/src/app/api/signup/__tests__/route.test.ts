@@ -11,6 +11,14 @@ function makeRequest(body: unknown): Request {
   });
 }
 
+function makeRawRequest(rawBody: string): Request {
+  return new Request("http://localhost/api/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: rawBody,
+  });
+}
+
 describe("validateSignupBody", () => {
   it("returns null when all fields are present non-empty strings", () => {
     expect(
@@ -101,5 +109,21 @@ describe("POST /api/signup", () => {
     expect(second.status).toBe(400);
     const data = await second.json();
     expect(data.error).toMatch(/already/i);
+  });
+
+  it("returns 400 with a clean JSON error for malformed JSON in the request body", async () => {
+    const res = await POST(makeRawRequest("{ not valid json"));
+
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBeTruthy();
+  });
+
+  it("returns 400 with a clean JSON error when the parsed body is null", async () => {
+    const res = await POST(makeRequest(null));
+
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBeTruthy();
   });
 });
