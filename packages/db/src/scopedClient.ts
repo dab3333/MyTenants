@@ -33,23 +33,35 @@ export function createScopedClient(organizationId: string) {
             );
           }
 
+          // Prisma's $allOperations hook types `args` as a union across every
+          // model x operation in the schema, which TypeScript cannot narrow
+          // based on the runtime `operation` string checks below. This local
+          // view is a type-level cast only (same underlying object as `args`,
+          // not a copy), so mutations here still reach the `query(args)` call.
+          const mutableArgs = args as {
+            where?: Record<string, unknown>;
+            data?: unknown;
+            create?: Record<string, unknown>;
+            update?: Record<string, unknown>;
+          };
+
           if (READ_OPS.has(operation) || WRITE_WHERE_OPS.has(operation) || operation === "upsert") {
-            args.where = { ...(args.where ?? {}), organizationId };
+            mutableArgs.where = { ...(mutableArgs.where ?? {}), organizationId };
           }
 
           if (CREATE_OPS.has(operation)) {
             if (operation === "create") {
-              args.data = { ...(args.data ?? {}), organizationId };
+              mutableArgs.data = { ...((mutableArgs.data as Record<string, unknown>) ?? {}), organizationId };
             } else {
-              args.data = Array.isArray(args.data)
-                ? args.data.map((row: Record<string, unknown>) => ({ ...row, organizationId }))
-                : { ...(args.data ?? {}), organizationId };
+              mutableArgs.data = Array.isArray(mutableArgs.data)
+                ? mutableArgs.data.map((row: Record<string, unknown>) => ({ ...row, organizationId }))
+                : { ...((mutableArgs.data as Record<string, unknown>) ?? {}), organizationId };
             }
           }
 
           if (operation === "upsert") {
-            args.create = { ...(args.create ?? {}), organizationId };
-            args.update = { ...(args.update ?? {}), organizationId };
+            mutableArgs.create = { ...(mutableArgs.create ?? {}), organizationId };
+            mutableArgs.update = { ...(mutableArgs.update ?? {}), organizationId };
           }
 
           return query(args);
