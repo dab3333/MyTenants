@@ -1,6 +1,7 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { prisma } from "@mytenants/db";
-import { POST, validateSignupBody } from "../route";
+import { POST } from "../route";
+import { validateSignupBody } from "@/lib/validateSignupBody";
 
 function makeRequest(body: unknown): Request {
   return new Request("http://localhost/api/signup", {
