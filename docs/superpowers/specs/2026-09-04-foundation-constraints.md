@@ -22,3 +22,15 @@ Any future plan doing a multi-model write (e.g. a tenant-admission flow creating
 Scoping stamps and filters `organizationId` on the record being written or read, but it does nothing to verify that a record's OTHER foreign keys actually point to a parent belonging to the same organization — for example a `Room`'s `floorId`, or a `Tenancy`'s `roomId`. A caller-supplied FK pointing at another organization's parent row would currently be accepted by the scoped client without complaint, since the extension only inspects `organizationId`, not relation targets.
 
 Every future route handler that accepts a user-supplied parent id (`floorId`, `roomId`, `tenancyId`, `invoiceId`, etc.) MUST explicitly verify that the referenced parent record belongs to the caller's organization — e.g. via a scoped `findFirst` lookup on the parent before using its id in a write. The scoping extension alone does not protect against a cross-organization foreign-key reference.
+
+## 4. Nested `include` reads are not org-filtered
+
+`apps/web/src/lib/buildingOverview.ts` does `scoped.building.findFirst({ where: { id }, include: { floors: { include: { rooms: ... } } } })`. The org-scoping extension's `$allOperations` hook only sees the top-level `building.findFirst` call — it stamps/filters `organizationId` on THAT query, but never touches the nested `floors`/`rooms` selections inside `include`. This is currently safe ONLY because of the parent-FK-validation rule above (a Floor can never have a mismatched `organizationId`/`buildingId` pair, since every write validates the parent) — it is correctness-by-invariant, not correctness-by-mechanism.
+
+Any future plan writing a nested-`include` read (e.g. `tenancy.findMany({ include: { tenant: true } })`) must keep this in mind: the safety depends entirely on every write path maintaining the parent-FK invariant. If that invariant is ever violated, nested reads will silently leak.
+
+## 5. Room capacity may be reduced below current occupancy
+
+`PATCH /api/rooms/[id]` allows setting `capacity` lower than the room's current count of `ACTIVE` Tenancies (e.g. a room with 3 active tenants can have its capacity set to 1). This is a deliberate choice, not an oversight: reducing a room's capacity below its current occupancy is a legitimate landlord action (e.g. planned renovation, converting a shared room to single-occupancy going forward), not a data-integrity violation — the Tenancy rows themselves are unaffected.
+
+The rule for any future code computing "available capacity" is: `free = max(0, capacity - occupied)` — never assume `capacity - occupied` alone is non-negative.
