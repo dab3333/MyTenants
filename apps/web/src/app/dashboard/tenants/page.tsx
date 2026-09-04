@@ -1,0 +1,65 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { createScopedClient } from "@mytenants/db";
+import { AddProspectForm } from "./AddProspectForm";
+
+export default async function TenantsListPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; search?: string }>;
+}) {
+  const session = await auth();
+  if (!session?.user?.organizationId) redirect("/login");
+
+  const { status, search } = await searchParams;
+  const TENANT_STATUSES = ["PROSPECT", "ACTIVE", "MOVED_OUT"] as const;
+  const validStatus = status && (TENANT_STATUSES as readonly string[]).includes(status) ? status : undefined;
+
+  const scoped = createScopedClient(session.user.organizationId);
+  const tenants = await scoped.tenant.findMany({
+    where: {
+      ...(validStatus ? { status: validStatus as (typeof TENANT_STATUSES)[number] } : {}),
+      ...(search
+        ? {
+            OR: [
+              { firstName: { contains: search, mode: "insensitive" } },
+              { lastName: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return (
+    <main className="p-6">
+      <h1 className="text-2xl font-semibold mb-4">Tenants</h1>
+      <Link className="text-blue-700 underline mb-4 inline-block" href="/dashboard/tenants/admit">
+        Admit Tenant
+      </Link>
+      <AddProspectForm />
+      <form className="mb-4 flex gap-2" method="get">
+        <input name="search" defaultValue={search ?? ""} placeholder="Search by name" className="border rounded px-2 py-1" />
+        <select name="status" defaultValue={status ?? ""} className="border rounded px-2 py-1">
+          <option value="">All statuses</option>
+          <option value="PROSPECT">Prospect</option>
+          <option value="ACTIVE">Active</option>
+          <option value="MOVED_OUT">Moved out</option>
+        </select>
+        <button type="submit" className="border rounded px-3 py-1">Filter</button>
+      </form>
+      <ul className="space-y-2">
+        {tenants.map((tenant) => (
+          <li key={tenant.id}>
+            <Link className="text-blue-700 underline" href={`/dashboard/tenants/${tenant.id}`}>
+              {tenant.firstName} {tenant.lastName}
+            </Link>
+            <span className="text-gray-500 text-sm"> — {tenant.status}</span>
+          </li>
+        ))}
+        {tenants.length === 0 && <li className="text-gray-500">No tenants found.</li>}
+      </ul>
+    </main>
+  );
+}
