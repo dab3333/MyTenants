@@ -15,7 +15,7 @@ const SCOPED_MODELS = new Set([
 
 const READ_OPS = new Set(["findFirst", "findFirstOrThrow", "findMany", "count", "aggregate", "groupBy"]);
 const WRITE_WHERE_OPS = new Set(["update", "updateMany", "delete", "deleteMany"]);
-const CREATE_OPS = new Set(["create", "createMany"]);
+const CREATE_OPS = new Set(["create", "createMany", "createManyAndReturn"]);
 
 export function createScopedClient(organizationId: string) {
   return prisma.$extends({
@@ -33,7 +33,7 @@ export function createScopedClient(organizationId: string) {
             );
           }
 
-          if (READ_OPS.has(operation) || WRITE_WHERE_OPS.has(operation)) {
+          if (READ_OPS.has(operation) || WRITE_WHERE_OPS.has(operation) || operation === "upsert") {
             args.where = { ...(args.where ?? {}), organizationId };
           }
 
@@ -43,8 +43,13 @@ export function createScopedClient(organizationId: string) {
             } else {
               args.data = Array.isArray(args.data)
                 ? args.data.map((row: Record<string, unknown>) => ({ ...row, organizationId }))
-                : args.data;
+                : { ...(args.data ?? {}), organizationId };
             }
+          }
+
+          if (operation === "upsert") {
+            args.create = { ...(args.create ?? {}), organizationId };
+            args.update = { ...(args.update ?? {}), organizationId };
           }
 
           return query(args);
