@@ -3,16 +3,16 @@ import { Prisma, PrismaClient, computeInvoiceStatus } from "@mytenants/db";
 export type RunDailyBillingResult = { generated: number; recalculated: number };
 
 function daysInMonth(year: number, monthIndex: number): number {
-  return new Date(year, monthIndex + 1, 0).getDate();
+  return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 }
 
 function clampedBillingDate(year: number, monthIndex: number, billingDay: number): Date {
   const day = Math.min(billingDay, daysInMonth(year, monthIndex));
-  return new Date(year, monthIndex, day);
+  return new Date(Date.UTC(year, monthIndex, day));
 }
 
 function isSameCalendarDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate();
 }
 
 function isUniqueConstraintViolation(error: unknown): boolean {
@@ -26,12 +26,12 @@ export async function runDailyBilling(prisma: PrismaClient, today: Date): Promis
   const activeTenancies = await prisma.tenancy.findMany({ where: { status: "ACTIVE" } });
 
   for (const tenancy of activeTenancies) {
-    const billingDate = clampedBillingDate(today.getFullYear(), today.getMonth(), tenancy.billingDay);
+    const billingDate = clampedBillingDate(today.getUTCFullYear(), today.getUTCMonth(), tenancy.billingDay);
     if (!isSameCalendarDay(billingDate, today)) continue;
 
-    const nextBillingDate = clampedBillingDate(today.getFullYear(), today.getMonth() + 1, tenancy.billingDay);
+    const nextBillingDate = clampedBillingDate(today.getUTCFullYear(), today.getUTCMonth() + 1, tenancy.billingDay);
     const periodEnd = new Date(nextBillingDate);
-    periodEnd.setDate(periodEnd.getDate() - 1);
+    periodEnd.setUTCDate(periodEnd.getUTCDate() - 1);
 
     try {
       await prisma.invoice.create({
