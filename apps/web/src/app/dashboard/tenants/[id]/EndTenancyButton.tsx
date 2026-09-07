@@ -9,16 +9,23 @@ export function EndTenancyButton({ tenancyId }: { tenancyId: string }) {
   const [pending, setPending] = useState(false);
 
   async function handleClick() {
+    if (pending) return;
     if (!confirm("End this tenancy? This will mark the tenant as moved out.")) return;
     setPending(true);
     setError(null);
-    const res = await fetch(`/api/tenancies/${tenancyId}/end`, { method: "POST" });
-    setPending(false);
-    if (res.ok) {
-      router.refresh();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to end tenancy");
+
+    try {
+      const res = await fetch(`/api/tenancies/${tenancyId}/end`, { method: "POST" });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to end tenancy");
+      }
+    } catch {
+      setError("Failed to end tenancy");
+    } finally {
+      setPending(false);
     }
   }
 

@@ -8,22 +8,32 @@ export function AddProspectForm() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     setError(null);
-    const res = await fetch("/api/tenants", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstName, lastName }),
-    });
-    if (res.ok) {
-      setFirstName("");
-      setLastName("");
-      router.refresh();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to add prospect");
+
+    try {
+      const res = await fetch("/api/tenants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName }),
+      });
+      if (res.ok) {
+        setFirstName("");
+        setLastName("");
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to add prospect");
+      }
+    } catch {
+      setError("Failed to add prospect");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -52,8 +62,8 @@ export function AddProspectForm() {
         </label>
       </div>
       {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1">
-        Add Prospect
+      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+        {isSubmitting ? "Adding..." : "Add Prospect"}
       </button>
     </form>
   );

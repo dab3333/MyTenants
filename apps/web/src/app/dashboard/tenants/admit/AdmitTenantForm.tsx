@@ -20,7 +20,7 @@ export function AdmitTenantForm({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [monthlyRate, setMonthlyRate] = useState("0");
+  const [monthlyRate, setMonthlyRate] = useState(availableRooms[0]?.monthlyRate ?? "0");
   const [depositAmount, setDepositAmount] = useState("0");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +52,8 @@ export function AdmitTenantForm({
         const data = await res.json().catch(() => ({}));
         setError(data.error ?? "Failed to admit tenant");
       }
+    } catch {
+      setError("Failed to admit tenant");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +97,17 @@ export function AdmitTenantForm({
 
       <label className="block text-sm">
         Room
-        <select className="border rounded px-2 py-1 block" value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
+        <select
+          className="border rounded px-2 py-1 block"
+          value={roomId}
+          onChange={(e) => {
+            const nextRoomId = e.target.value;
+            setRoomId(nextRoomId);
+            const nextRoom = availableRooms.find((room) => room.roomId === nextRoomId);
+            if (nextRoom) setMonthlyRate(nextRoom.monthlyRate);
+          }}
+          required
+        >
           {availableRooms.map((room) => (
             <option key={room.roomId} value={room.roomId}>
               {room.buildingName} / {room.floorLabel} / {room.roomName} ({room.occupied}/{room.capacity})

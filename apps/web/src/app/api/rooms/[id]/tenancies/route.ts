@@ -29,10 +29,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (typeof startDate !== "string" || Number.isNaN(Date.parse(startDate))) {
     return NextResponse.json({ error: "startDate must be a valid date" }, { status: 400 });
   }
-  if (typeof monthlyRate !== "number" || monthlyRate < 0) {
+  if (typeof monthlyRate !== "number" || !Number.isFinite(monthlyRate) || monthlyRate < 0) {
     return NextResponse.json({ error: "monthlyRate must be a non-negative number" }, { status: 400 });
   }
-  if (typeof depositAmount !== "number" || depositAmount < 0) {
+  if (typeof depositAmount !== "number" || !Number.isFinite(depositAmount) || depositAmount < 0) {
     return NextResponse.json({ error: "depositAmount must be a non-negative number" }, { status: 400 });
   }
 

@@ -192,6 +192,14 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     [{ tenant: { firstName: "A", lastName: "B" }, startDate: "not-a-date", monthlyRate: 3000, depositAmount: 3000 }, "startDate must be a valid date"],
     [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", depositAmount: 3000 }, "monthlyRate must be a non-negative number"],
     [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000 }, "depositAmount must be a non-negative number"],
+    [
+      { tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: Number("not-a-number"), depositAmount: 3000 },
+      "monthlyRate must be a non-negative number",
+    ],
+    [
+      { tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: Number("not-a-number") },
+      "depositAmount must be a non-negative number",
+    ],
   ])("returns 400 for invalid body %j", async (body, expectedError) => {
     const org = await prisma.organization.create({ data: { name: `Org Admit Invalid ${JSON.stringify(body)}` } });
     const room = await makeRoom(org.id, 5);
@@ -204,5 +212,28 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBe(expectedError);
+  });
+
+  it("returns 400 when monthlyRate is a non-finite number (e.g. a numeric literal that overflows to Infinity)", async () => {
+    // Note: JSON.stringify(NaN) / JSON.stringify(Infinity) both serialize to the JSON literal
+    // `null`, so a JS-side NaN/Infinity value never survives a real JSON.stringify round trip
+    // as a non-finite *number* on the wire. A numeric literal that overflows on parse (valid
+    // JSON syntax, e.g. `1e400`) is the one way a genuinely non-finite `typeof "number"` value
+    // can reach the route from a real request body, so we craft the body as a raw JSON string.
+    const org = await prisma.organization.create({ data: { name: "Org Admit NonFinite" } });
+    const room = await makeRoom(org.id, 5);
+
+    sessionFor(org.id);
+    const res = await POST(
+      new Request("http://localhost", {
+        method: "POST",
+        body: '{"tenant":{"firstName":"A","lastName":"B"},"startDate":"2026-01-01","monthlyRate":1e400,"depositAmount":3000}',
+      }),
+      { params: Promise.resolve({ id: room.id }) }
+    );
+
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBe("monthlyRate must be a non-negative number");
   });
 });
