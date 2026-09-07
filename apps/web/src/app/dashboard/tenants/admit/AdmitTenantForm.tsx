@@ -20,6 +20,7 @@ export function AdmitTenantForm({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [billingDay, setBillingDay] = useState("1");
   const [monthlyRate, setMonthlyRate] = useState(availableRooms[0]?.monthlyRate ?? "0");
   const [depositAmount, setDepositAmount] = useState("0");
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export function AdmitTenantForm({
           startDate,
           monthlyRate: Number(monthlyRate),
           depositAmount: Number(depositAmount),
+          billingDay: Number(billingDay),
         }),
       });
 
@@ -118,7 +120,32 @@ export function AdmitTenantForm({
 
       <label className="block text-sm">
         Start date
-        <input type="date" className="border rounded px-2 py-1 block" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+        <input
+          type="date"
+          className="border rounded px-2 py-1 block"
+          value={startDate}
+          onChange={(e) => {
+            const nextStartDate = e.target.value;
+            setStartDate(nextStartDate);
+            const dayOfMonth = Number(nextStartDate.split("-")[2]);
+            if (Number.isFinite(dayOfMonth) && dayOfMonth >= 1 && dayOfMonth <= 31) {
+              setBillingDay(String(dayOfMonth));
+            }
+          }}
+          required
+        />
+      </label>
+      <label className="block text-sm">
+        Billing day (day of month)
+        <input
+          type="number"
+          min={1}
+          max={31}
+          className="border rounded px-2 py-1 block"
+          value={billingDay}
+          onChange={(e) => setBillingDay(e.target.value)}
+          required
+        />
       </label>
       <label className="block text-sm">
         Monthly rate

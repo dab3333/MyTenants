@@ -77,6 +77,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
           startDate: "2026-01-01",
           monthlyRate: 3000,
           depositAmount: 3000,
+          billingDay: 1,
         }),
       }),
       { params: Promise.resolve({ id: room.id }) }
@@ -101,7 +102,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     const res = await POST(
       new Request("http://localhost", {
         method: "POST",
-        body: JSON.stringify({ tenant: { id: prospect.id }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }),
+        body: JSON.stringify({ tenant: { id: prospect.id }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }),
       }),
       { params: Promise.resolve({ id: room.id }) }
     );
@@ -124,7 +125,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     const res = await POST(
       new Request("http://localhost", {
         method: "POST",
-        body: JSON.stringify({ tenant: { firstName: "New", lastName: "Comer" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }),
+        body: JSON.stringify({ tenant: { firstName: "New", lastName: "Comer" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }),
       }),
       { params: Promise.resolve({ id: room.id }) }
     );
@@ -143,7 +144,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     const res = await POST(
       new Request("http://localhost", {
         method: "POST",
-        body: JSON.stringify({ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }),
+        body: JSON.stringify({ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }),
       }),
       { params: Promise.resolve({ id: roomB.id }) }
     );
@@ -161,7 +162,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     const res = await POST(
       new Request("http://localhost", {
         method: "POST",
-        body: JSON.stringify({ tenant: { id: tenantB.id }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }),
+        body: JSON.stringify({ tenant: { id: tenantB.id }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }),
       }),
       { params: Promise.resolve({ id: room.id }) }
     );
@@ -178,7 +179,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     const res = await POST(
       new Request("http://localhost", {
         method: "POST",
-        body: JSON.stringify({ tenant: { id: activeTenant.id }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }),
+        body: JSON.stringify({ tenant: { id: activeTenant.id }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }),
       }),
       { params: Promise.resolve({ id: room.id }) }
     );
@@ -187,19 +188,20 @@ describe("POST /api/rooms/[id]/tenancies", () => {
   });
 
   it.each([
-    [{ tenant: {}, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }, "tenant.firstName is required"],
-    [{ tenant: { firstName: "A" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }, "tenant.lastName is required"],
-    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "not-a-date", monthlyRate: 3000, depositAmount: 3000 }, "startDate must be a valid date"],
-    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", depositAmount: 3000 }, "monthlyRate must be a non-negative number"],
-    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000 }, "depositAmount must be a non-negative number"],
+    [{ tenant: {}, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }, "tenant.firstName is required"],
+    [{ tenant: { firstName: "A" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }, "tenant.lastName is required"],
+    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "not-a-date", monthlyRate: 3000, depositAmount: 3000, billingDay: 1 }, "startDate must be a valid date"],
+    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", depositAmount: 3000, billingDay: 1 }, "monthlyRate must be a non-negative number"],
+    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, billingDay: 1 }, "depositAmount must be a non-negative number"],
     [
-      { tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: Number("not-a-number"), depositAmount: 3000 },
+      { tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: Number("not-a-number"), depositAmount: 3000, billingDay: 1 },
       "monthlyRate must be a non-negative number",
     ],
     [
-      { tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: Number("not-a-number") },
+      { tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: Number("not-a-number"), billingDay: 1 },
       "depositAmount must be a non-negative number",
     ],
+    [{ tenant: { firstName: "A", lastName: "B" }, startDate: "2026-01-01", monthlyRate: 3000, depositAmount: 3000 }, "billingDay must be an integer between 1 and 31"],
   ])("returns 400 for invalid body %j", async (body, expectedError) => {
     const org = await prisma.organization.create({ data: { name: `Org Admit Invalid ${JSON.stringify(body)}` } });
     const room = await makeRoom(org.id, 5);
@@ -227,7 +229,7 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     const res = await POST(
       new Request("http://localhost", {
         method: "POST",
-        body: '{"tenant":{"firstName":"A","lastName":"B"},"startDate":"2026-01-01","monthlyRate":1e400,"depositAmount":3000}',
+        body: '{"tenant":{"firstName":"A","lastName":"B"},"startDate":"2026-01-01","monthlyRate":1e400,"depositAmount":3000,"billingDay":1}',
       }),
       { params: Promise.resolve({ id: room.id }) }
     );
@@ -235,5 +237,30 @@ describe("POST /api/rooms/[id]/tenancies", () => {
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBe("monthlyRate must be a non-negative number");
+  });
+
+  it("persists billingDay on the created tenancy", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Billing Day" } });
+    const room = await makeRoom(org.id, 1);
+
+    sessionFor(org.id);
+    const res = await POST(
+      new Request("http://localhost", {
+        method: "POST",
+        body: JSON.stringify({
+          tenant: { firstName: "Jane", lastName: "Doe" },
+          startDate: "2026-01-15",
+          monthlyRate: 3000,
+          depositAmount: 3000,
+          billingDay: 15,
+        }),
+      }),
+      { params: Promise.resolve({ id: room.id }) }
+    );
+
+    expect(res.status).toBe(201);
+    const data = await res.json();
+    const tenancy = await prisma.tenancy.findFirst({ where: { id: data.tenancy.id } });
+    expect(tenancy?.billingDay).toBe(15);
   });
 });

@@ -11,7 +11,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  const { tenant, startDate, monthlyRate, depositAmount } = body as Record<string, unknown>;
+  const { tenant, startDate, monthlyRate, depositAmount, billingDay } = body as Record<string, unknown>;
 
   if (!tenant || typeof tenant !== "object") {
     return NextResponse.json({ error: "tenant is required" }, { status: 400 });
@@ -34,6 +34,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   if (typeof depositAmount !== "number" || !Number.isFinite(depositAmount) || depositAmount < 0) {
     return NextResponse.json({ error: "depositAmount must be a non-negative number" }, { status: 400 });
+  }
+  if (
+    typeof billingDay !== "number" ||
+    !Number.isInteger(billingDay) ||
+    billingDay < 1 ||
+    billingDay > 31
+  ) {
+    return NextResponse.json({ error: "billingDay must be an integer between 1 and 31" }, { status: 400 });
   }
 
   const scoped = createScopedClient(session.organizationId);
@@ -81,6 +89,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           startDate: new Date(startDate as string),
           monthlyRate: monthlyRate as number,
           depositAmount: depositAmount as number,
+          billingDay: billingDay as number,
           status: "ACTIVE",
         },
       });
