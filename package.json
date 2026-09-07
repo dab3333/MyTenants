@@ -6,6 +6,6 @@
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
-    "test": "pnpm --filter web test && pnpm --filter db test"
+    "test": "pnpm --filter web test && pnpm --filter db test && pnpm --filter worker test"
   }
 }
