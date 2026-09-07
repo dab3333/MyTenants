@@ -121,6 +121,7 @@ model Tenancy {
   endDate        DateTime?
   monthlyRate    Decimal       @db.Decimal(10, 2)
   depositAmount  Decimal       @db.Decimal(10, 2)
+  billingDay     Int           @default(1)
   status         TenancyStatus @default(ACTIVE)
   createdAt      DateTime      @default(now())
 
@@ -154,6 +155,7 @@ model Invoice {
 
   @@index([organizationId])
   @@index([tenancyId])
+  @@unique([tenancyId, periodStart])
 }
 
 enum PaymentMethod {
