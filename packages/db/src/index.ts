@@ -5,3 +5,4 @@ export const prisma = new PrismaClient();
 export * from "@prisma/client";
 export * from "./scopedClient";
 export * from "./invoiceStatus";
+export * from "./emailSender";

@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "resend": "^4.0.0"
   },
   "devDependencies": {
     "prisma": "^5.20.0",
