@@ -222,6 +222,8 @@ model NotificationRecipient {
   tenantId       String
   tenant         Tenant         @relation(fields: [tenantId], references: [id])
   deliveryStatus DeliveryStatus @default(SENT)
+  recipientEmail String?
+  failureReason  String?
 
   @@index([organizationId])
   @@index([notificationId])

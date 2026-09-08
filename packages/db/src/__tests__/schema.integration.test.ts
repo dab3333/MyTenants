@@ -149,4 +149,46 @@ describe("schema relations", () => {
       })
     ).rejects.toThrow();
   });
+
+  it("stores and returns a NotificationRecipient's recipientEmail and failureReason", async () => {
+    const org = await prisma.organization.create({ data: { name: "Acme Notifications" } });
+    const tenant = await prisma.tenant.create({
+      data: { organizationId: org.id, firstName: "Jane", lastName: "Doe", status: "ACTIVE", email: "jane@example.com" },
+    });
+    const notification = await prisma.notification.create({
+      data: {
+        organizationId: org.id,
+        subject: "Welcome",
+        body: "Hello!",
+        scope: "TENANT",
+        trigger: "MANUAL",
+      },
+    });
+    const recipient = await prisma.notificationRecipient.create({
+      data: {
+        organizationId: org.id,
+        notificationId: notification.id,
+        tenantId: tenant.id,
+        deliveryStatus: "SENT",
+        recipientEmail: "jane@example.com",
+      },
+    });
+
+    expect(recipient.recipientEmail).toBe("jane@example.com");
+    expect(recipient.failureReason).toBeNull();
+
+    const failedRecipient = await prisma.notificationRecipient.create({
+      data: {
+        organizationId: org.id,
+        notificationId: notification.id,
+        tenantId: tenant.id,
+        deliveryStatus: "FAILED",
+        recipientEmail: null,
+        failureReason: "No email on file",
+      },
+    });
+
+    expect(failedRecipient.recipientEmail).toBeNull();
+    expect(failedRecipient.failureReason).toBe("No email on file");
+  });
 });
