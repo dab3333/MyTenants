@@ -16,6 +16,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/mytenants
       AUTH_SECRET: ${AUTH_SECRET}
+      TZ: UTC
     depends_on:
       - postgres
 
@@ -26,6 +27,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/mytenants
+      TZ: UTC
     depends_on:
       - postgres
 
