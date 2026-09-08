@@ -27,23 +27,32 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const scoped = createScopedClient(session.organizationId);
-  const invoice = await scoped.invoice.findFirst({ where: { id: invoiceId }, include: { payments: true } });
-  if (!invoice) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
 
-  const totalPaid = invoice.payments.reduce(
-    (sum, payment) => sum.add(payment.amountPaid),
-    new Prisma.Decimal(0)
-  );
-  const remaining = invoice.amountDue.sub(totalPaid);
+  // Up-front ownership check: an invoice outside the caller's organization is a 404
+  // regardless of balances, so it does not need the transaction.
+  const owned = await scoped.invoice.findFirst({ where: { id: invoiceId }, select: { id: true } });
+  if (!owned) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+
   const amountPaidDecimal = new Prisma.Decimal(amountPaid);
-  if (amountPaidDecimal.greaterThan(remaining)) {
-    return NextResponse.json(
-      { error: `amountPaid exceeds the invoice's remaining balance of ${remaining.toString()}` },
-      { status: 409 }
-    );
-  }
 
   const result = await scoped.$transaction(async (tx) => {
+    // The invoice + payments read and the overpayment guard live INSIDE the transaction:
+    // reading the balance outside it let two concurrent requests both see the same
+    // totalPaid, both pass the guard, and both insert — overpaying the invoice and
+    // writing a status computed without the sibling payment. Reading through `tx` makes
+    // the balance check and the insert part of one atomic, isolated unit of work.
+    const invoice = await tx.invoice.findFirst({ where: { id: invoiceId }, include: { payments: true } });
+    if (!invoice) return { notFound: true as const };
+
+    const totalPaid = invoice.payments.reduce(
+      (sum, payment) => sum.add(payment.amountPaid),
+      new Prisma.Decimal(0)
+    );
+    const remaining = invoice.amountDue.sub(totalPaid);
+    if (amountPaidDecimal.greaterThan(remaining)) {
+      return { overpayment: remaining.toString() };
+    }
+
     const payment = await tx.payment.create({
       data: {
         organizationId: session.organizationId,
@@ -67,6 +76,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     return { payment, invoice: updatedInvoice };
   });
+
+  if ("notFound" in result) {
+    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+  }
+  if ("overpayment" in result) {
+    return NextResponse.json(
+      { error: `amountPaid exceeds the invoice's remaining balance of ${result.overpayment}` },
+      { status: 409 }
+    );
+  }
 
   return NextResponse.json(result, { status: 201 });
 }

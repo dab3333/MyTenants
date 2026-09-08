@@ -57,6 +57,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     today: new Date(),
   });
 
-  const invoice = await scoped.invoice.update({ where: { id }, data });
-  return NextResponse.json({ invoice });
+  try {
+    const invoice = await scoped.invoice.update({ where: { id }, data });
+    return NextResponse.json({ invoice });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json(
+        { error: "An invoice already exists for this tenancy covering this period" },
+        { status: 409 }
+      );
+    }
+    throw error;
+  }
 }

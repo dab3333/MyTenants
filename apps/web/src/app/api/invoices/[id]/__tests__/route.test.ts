@@ -77,6 +77,24 @@ describe("PATCH /api/invoices/[id]", () => {
     expect(res.status).toBe(404);
   });
 
+  it("returns 409 when the new periodStart collides with another invoice on the same tenancy", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Invoice Edit Duplicate Period" } });
+    const invoice = await makeInvoice(org.id);
+    await prisma.invoice.create({
+      data: { organizationId: org.id, tenancyId: invoice.tenancyId, periodStart: new Date("2026-02-01"), periodEnd: new Date("2026-02-28"), amountDue: "3000.00", dueDate: new Date("2026-02-05") },
+    });
+
+    sessionFor(org.id);
+    const res = await PATCH(
+      new Request("http://localhost", { method: "PATCH", body: JSON.stringify({ periodStart: "2026-02-01" }) }),
+      { params: Promise.resolve({ id: invoice.id }) }
+    );
+
+    expect(res.status).toBe(409);
+    const data = await res.json();
+    expect(data.error).toBe("An invoice already exists for this tenancy covering this period");
+  });
+
   it("returns 400 for an invalid amountDue", async () => {
     const org = await prisma.organization.create({ data: { name: "Org Invoice Edit Invalid" } });
     const invoice = await makeInvoice(org.id);
