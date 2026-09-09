@@ -49,3 +49,49 @@ export async function getTenantCountTrend(
     return { label: bucket.label, activeTenantCount: activeTenantIds.size };
   });
 }
+
+export type BuildingOccupancy = { id: string; name: string; occupiedCapacity: number; totalCapacity: number };
+export type OverdueSummary = { count: number; totalOwed: number };
+
+export async function getOccupancyByBuilding(
+  scoped: ReturnType<typeof createScopedClient>
+): Promise<BuildingOccupancy[]> {
+  const buildings = await scoped.building.findMany({
+    orderBy: { name: "asc" },
+    include: { floors: { include: { rooms: true } } },
+  });
+  if (buildings.length === 0) return [];
+
+  const roomIds = buildings.flatMap((b) => b.floors.flatMap((f) => f.rooms.map((r) => r.id)));
+  const occupancyCounts = roomIds.length
+    ? await scoped.tenancy.groupBy({
+        by: ["roomId"],
+        where: { roomId: { in: roomIds }, status: "ACTIVE" },
+        _count: { _all: true },
+      })
+    : [];
+  const occupiedByRoomId = new Map(occupancyCounts.map((row) => [row.roomId, row._count._all]));
+
+  return buildings.map((building) => {
+    const rooms = building.floors.flatMap((f) => f.rooms);
+    const totalCapacity = rooms.reduce((sum, r) => sum + r.capacity, 0);
+    const occupiedCapacity = rooms.reduce((sum, r) => sum + (occupiedByRoomId.get(r.id) ?? 0), 0);
+    return { id: building.id, name: building.name, occupiedCapacity, totalCapacity };
+  });
+}
+
+export async function getOverdueSummary(
+  scoped: ReturnType<typeof createScopedClient>
+): Promise<OverdueSummary> {
+  const invoices = await scoped.invoice.findMany({
+    where: { status: "OVERDUE" },
+    include: { payments: true },
+  });
+
+  const totalOwed = invoices.reduce((sum, invoice) => {
+    const totalPaid = invoice.payments.reduce((paidSum, p) => paidSum + Number(p.amountPaid), 0);
+    return sum + (Number(invoice.amountDue) - totalPaid);
+  }, 0);
+
+  return { count: invoices.length, totalOwed };
+}

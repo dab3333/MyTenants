@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { prisma, createScopedClient } from "@mytenants/db";
 import { buildMonthBuckets } from "../dateRange";
-import { getIncomeTrend, getTenantCountTrend } from "../dashboardMetrics";
+import { getIncomeTrend, getTenantCountTrend, getOccupancyByBuilding, getOverdueSummary } from "../dashboardMetrics";
 
 async function makeUser(organizationId: string) {
   return prisma.user.create({
@@ -220,5 +220,98 @@ describe("getTenantCountTrend", () => {
     const trend = await getTenantCountTrend(scoped, buckets);
 
     expect(trend).toEqual([{ label: "2026-04", activeTenantCount: 1 }]);
+  });
+});
+
+describe("getOccupancyByBuilding", () => {
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
+  it("computes occupied and total capacity per building, across multiple rooms of varying capacity", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Occupancy ${Math.random()}` } });
+    const building = await prisma.building.create({ data: { organizationId: org.id, name: "Main Hall" } });
+    const floor = await prisma.floor.create({ data: { organizationId: org.id, buildingId: building.id, label: "1F" } });
+    const fullRoom = await prisma.room.create({
+      data: { organizationId: org.id, floorId: floor.id, name: "101", capacity: 2, monthlyRate: "3000.00" },
+    });
+    const vacantRoom = await prisma.room.create({
+      data: { organizationId: org.id, floorId: floor.id, name: "102", capacity: 1, monthlyRate: "3000.00" },
+    });
+    const tenant1 = await prisma.tenant.create({ data: { organizationId: org.id, firstName: "A", lastName: "One", status: "ACTIVE" } });
+    const tenant2 = await prisma.tenant.create({ data: { organizationId: org.id, firstName: "B", lastName: "Two", status: "ACTIVE" } });
+    await prisma.tenancy.create({
+      data: { organizationId: org.id, tenantId: tenant1.id, roomId: fullRoom.id, startDate: new Date("2026-01-01"), monthlyRate: "3000.00", depositAmount: "3000.00", status: "ACTIVE" },
+    });
+    await prisma.tenancy.create({
+      data: { organizationId: org.id, tenantId: tenant2.id, roomId: fullRoom.id, startDate: new Date("2026-01-01"), monthlyRate: "3000.00", depositAmount: "3000.00", status: "ACTIVE" },
+    });
+
+    const scoped = createScopedClient(org.id);
+    const result = await getOccupancyByBuilding(scoped);
+
+    expect(result).toEqual([{ id: building.id, name: "Main Hall", occupiedCapacity: 2, totalCapacity: 3 }]);
+  });
+
+  it("ignores ENDED tenancies when computing occupied capacity", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Occupancy Ended ${Math.random()}` } });
+    const building = await prisma.building.create({ data: { organizationId: org.id, name: "Ended Hall" } });
+    const floor = await prisma.floor.create({ data: { organizationId: org.id, buildingId: building.id, label: "1F" } });
+    const room = await prisma.room.create({
+      data: { organizationId: org.id, floorId: floor.id, name: "101", capacity: 1, monthlyRate: "3000.00" },
+    });
+    const tenant = await prisma.tenant.create({ data: { organizationId: org.id, firstName: "A", lastName: "One", status: "MOVED_OUT" } });
+    await prisma.tenancy.create({
+      data: { organizationId: org.id, tenantId: tenant.id, roomId: room.id, startDate: new Date("2026-01-01"), endDate: new Date("2026-02-01"), monthlyRate: "3000.00", depositAmount: "3000.00", status: "ENDED" },
+    });
+
+    const scoped = createScopedClient(org.id);
+    const result = await getOccupancyByBuilding(scoped);
+
+    expect(result).toEqual([{ id: building.id, name: "Ended Hall", occupiedCapacity: 0, totalCapacity: 1 }]);
+  });
+
+  it("returns an empty array for an organization with no buildings", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org No Buildings ${Math.random()}` } });
+    const scoped = createScopedClient(org.id);
+
+    const result = await getOccupancyByBuilding(scoped);
+
+    expect(result).toEqual([]);
+  });
+});
+
+describe("getOverdueSummary", () => {
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
+  it("sums the remaining balance of OVERDUE invoices only, netting out partial payments", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Overdue ${Math.random()}` } });
+    const { tenancy } = await makeTenancy(org.id, { startDate: "2026-01-01" });
+    const overdueInvoice = await prisma.invoice.create({
+      data: { organizationId: org.id, tenancyId: tenancy.id, periodStart: new Date("2026-01-01"), periodEnd: new Date("2026-01-31"), amountDue: "3000.00", dueDate: new Date("2026-01-01"), status: "OVERDUE" },
+    });
+    const user = await makeUser(org.id);
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: overdueInvoice.id, amountPaid: "1000.00", method: "CASH", recordedByUserId: user.id },
+    });
+    await prisma.invoice.create({
+      data: { organizationId: org.id, tenancyId: tenancy.id, periodStart: new Date("2026-02-01"), periodEnd: new Date("2026-02-28"), amountDue: "3000.00", dueDate: new Date("2026-02-01"), status: "PAID" },
+    });
+
+    const scoped = createScopedClient(org.id);
+    const result = await getOverdueSummary(scoped);
+
+    expect(result).toEqual({ count: 1, totalOwed: 2000 });
+  });
+
+  it("returns a zero summary when there are no overdue invoices", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org No Overdue ${Math.random()}` } });
+    const scoped = createScopedClient(org.id);
+
+    const result = await getOverdueSummary(scoped);
+
+    expect(result).toEqual({ count: 0, totalOwed: 0 });
   });
 });
