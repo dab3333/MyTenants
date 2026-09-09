@@ -34,7 +34,7 @@ export default async function DashboardHomePage({
   ]);
 
   return (
-    <main className="p-6 space-y-8">
+    <div className="p-6 space-y-8">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
       <DashboardFilterForm preset={validPreset} from={from} to={to} />
 
@@ -57,6 +57,6 @@ export default async function DashboardHomePage({
         <h2 className="text-xl font-semibold mb-2">Overdue Payments</h2>
         <OverdueSummary summary={overdue} />
       </section>
-    </main>
+    </div>
   );
 }

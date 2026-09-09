@@ -64,7 +64,7 @@ All four widgets are computed by pure, independently-testable functions in a new
 
 ```ts
 export type IncomeTrendPoint = { label: string; totalPaid: number };
-export async function getIncomeTrend(scoped, buckets: MonthBucket[]): Promise<IncomeTrendPoint[]>;
+export async function getIncomeTrend(scoped, range: DateRange, buckets: MonthBucket[]): Promise<IncomeTrendPoint[]>;
 ```
 
 One query: `scoped.payment.findMany({ where: { paidAt: { gte: <the resolved `from`, i.e. the first bucket's month start>, lte: to } } })`. For each bucket, sum `amountPaid` (via `Number(...)`, consistent with how this codebase already converts `Prisma.Decimal` to `number` for display, e.g. `payments/page.tsx`) across payments whose `paidAt` falls within that bucket's month and `<= bucketEnd`.
@@ -76,7 +76,9 @@ export type TenantCountPoint = { label: string; activeTenantCount: number };
 export async function getTenantCountTrend(scoped, buckets: MonthBucket[]): Promise<TenantCountPoint[]>;
 ```
 
-One query: `scoped.tenancy.findMany({ select: { tenantId: true, startDate: true, endDate: true } })` — no date filter, since correctly answering "how many were active as of a past month-end" requires every tenancy regardless of its current `status`. For each bucket, count the number of **distinct** `tenantId`s where `startDate <= bucketEnd && (endDate === null || endDate > bucketEnd)`.
+One query: `scoped.tenancy.findMany({ select: { tenantId: true, startDate: true, endDate: true } })` — no date filter, since correctly answering "how many were active as of a past month-end" requires every tenancy regardless of its current `status`. For each bucket, count the number of **distinct** `tenantId`s where `startDate <= bucketEnd && (endDate === null || endDate >= bucket.bucketStart)`.
+
+Note: the originally-specified formula above (`endDate === null || endDate > bucketEnd`) did not actually satisfy this same section's own test in practice — a tenant whose tenancy ends mid-month must still count as active for that month. The corrected formula is therefore "active for at least part of the bucket's calendar month" (`endDate >= bucket.bucketStart`) rather than "active at the exact instant of bucketEnd."
 
 ### 4.3 Occupancy By Building (current snapshot)
 

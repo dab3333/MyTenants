@@ -1,5 +1,5 @@
 export type DateRange = { from: Date; to: Date };
-export type MonthBucket = { label: string; bucketEnd: Date };
+export type MonthBucket = { label: string; bucketStart: Date; bucketEnd: Date };
 
 export const DATE_RANGE_PRESETS = ["6m", "12m", "ytd", "custom"] as const;
 
@@ -57,12 +57,16 @@ export function buildMonthBuckets(range: DateRange): MonthBucket[] {
   const toYear = range.to.getUTCFullYear();
   const toMonth = range.to.getUTCMonth();
 
+  let isFirstBucket = true;
   while (year < toYear || (year === toYear && month <= toMonth)) {
     const isLastBucket = year === toYear && month === toMonth;
+    const monthStart = Date.UTC(year, month, 1);
+    const bucketStart = isFirstBucket ? new Date(Math.max(monthStart, range.from.getTime())) : new Date(monthStart);
     const monthEnd = new Date(Date.UTC(year, month + 1, 0));
     const bucketEnd = isLastBucket && range.to.getTime() < monthEnd.getTime() ? range.to : monthEnd;
     const label = `${year}-${String(month + 1).padStart(2, "0")}`;
-    buckets.push({ label, bucketEnd });
+    buckets.push({ label, bucketStart, bucketEnd });
+    isFirstBucket = false;
 
     month += 1;
     if (month > 11) {

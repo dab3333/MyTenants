@@ -19,9 +19,8 @@ export async function getIncomeTrend(
   });
 
   return buckets.map((bucket) => {
-    const bucketStart = new Date(Date.UTC(bucket.bucketEnd.getUTCFullYear(), bucket.bucketEnd.getUTCMonth(), 1));
     const totalPaid = payments
-      .filter((p) => p.paidAt.getTime() >= bucketStart.getTime() && p.paidAt.getTime() <= endOfUTCDay(bucket.bucketEnd).getTime())
+      .filter((p) => p.paidAt.getTime() >= bucket.bucketStart.getTime() && p.paidAt.getTime() <= endOfUTCDay(bucket.bucketEnd).getTime())
       .reduce((sum, p) => sum + Number(p.amountPaid), 0);
     return { label: bucket.label, totalPaid };
   });
@@ -36,13 +35,12 @@ export async function getTenantCountTrend(
   });
 
   return buckets.map((bucket) => {
-    const bucketStart = new Date(Date.UTC(bucket.bucketEnd.getUTCFullYear(), bucket.bucketEnd.getUTCMonth(), 1));
     const activeTenantIds = new Set(
       tenancies
         .filter(
           (t) =>
             t.startDate.getTime() <= endOfUTCDay(bucket.bucketEnd).getTime() &&
-            (t.endDate === null || t.endDate.getTime() >= bucketStart.getTime())
+            (t.endDate === null || t.endDate.getTime() >= bucket.bucketStart.getTime())
         )
         .map((t) => t.tenantId)
     );

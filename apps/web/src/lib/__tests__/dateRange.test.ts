@@ -79,4 +79,12 @@ describe("buildMonthBuckets", () => {
     expect(buckets[1].bucketEnd.toISOString().slice(0, 10)).toBe("2025-12-31");
     expect(buckets[2].bucketEnd.toISOString().slice(0, 10)).toBe("2026-01-15");
   });
+
+  it("clamps the first bucket's bucketStart to a custom range's mid-month 'from', leaving later buckets unaffected", () => {
+    const range = { from: new Date("2026-02-20T00:00:00.000Z"), to: new Date("2026-03-31T00:00:00.000Z") };
+    const buckets = buildMonthBuckets(range);
+    expect(buckets.map((b) => b.label)).toEqual(["2026-02", "2026-03"]);
+    expect(buckets[0].bucketStart.toISOString().slice(0, 10)).toBe("2026-02-20");
+    expect(buckets[1].bucketStart.toISOString().slice(0, 10)).toBe("2026-03-01");
+  });
 });
