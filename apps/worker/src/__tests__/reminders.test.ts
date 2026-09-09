@@ -1,6 +1,6 @@
 import { describe, it, expect, afterAll, vi } from "vitest";
 import { prisma } from "@mytenants/db";
-import type { SendEmail } from "@mytenants/db";
+import type { SendEmail, SendEmailResult } from "@mytenants/db";
 import { runOverdueReminders } from "../reminders";
 
 async function makeOverdueInvoice(options: { email?: string | null } = {}) {
@@ -46,7 +46,7 @@ async function makeOverdueInvoice(options: { email?: string | null } = {}) {
 
 function fakeSendEmail(): { sendEmail: SendEmail; calls: { to: string; subject: string; body: string }[] } {
   const calls: { to: string; subject: string; body: string }[] = [];
-  const sendEmail: SendEmail = vi.fn(async (input) => {
+  const sendEmail: SendEmail = vi.fn(async (input): Promise<SendEmailResult> => {
     calls.push(input);
     return { ok: true };
   });
