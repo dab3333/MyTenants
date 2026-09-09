@@ -85,6 +85,68 @@ describe("getIncomeTrend", () => {
 
     expect(trend).toEqual([{ label: "2026-04", totalPaid: 0 }]);
   });
+
+  it("includes a payment recorded at non-midnight time on the last day of a bucket", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Last Day ${Math.random()}` } });
+    const { tenancy } = await makeTenancy(org.id, { startDate: "2026-01-01" });
+    const invoice = await prisma.invoice.create({
+      data: {
+        organizationId: org.id,
+        tenancyId: tenancy.id,
+        periodStart: new Date("2026-04-01"),
+        periodEnd: new Date("2026-04-30"),
+        amountDue: "3000.00",
+        dueDate: new Date("2026-04-01"),
+        status: "PAID",
+      },
+    });
+    const user = await makeUser(org.id);
+    // Payment at 3:30 PM on April 30 (last day of the month)
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: invoice.id, amountPaid: "1500.00", method: "CASH", paidAt: new Date("2026-04-30T15:30:00.000Z"), recordedByUserId: user.id },
+    });
+
+    const scoped = createScopedClient(org.id);
+    const range = { from: new Date("2026-04-01"), to: new Date("2026-04-30") };
+    const buckets = buildMonthBuckets(range);
+
+    const trend = await getIncomeTrend(scoped, range, buckets);
+
+    expect(trend).toEqual([{ label: "2026-04", totalPaid: 1500 }]);
+  });
+
+  it("includes payments on today (final partial bucket) at non-midnight times", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Today ${Math.random()}` } });
+    const { tenancy } = await makeTenancy(org.id, { startDate: "2026-01-01" });
+    const invoice = await prisma.invoice.create({
+      data: {
+        organizationId: org.id,
+        tenancyId: tenancy.id,
+        periodStart: new Date("2026-05-01"),
+        periodEnd: new Date("2026-05-31"),
+        amountDue: "3000.00",
+        dueDate: new Date("2026-05-01"),
+        status: "PAID",
+      },
+    });
+    const user = await makeUser(org.id);
+    // Payments at various times on today (2026-05-09)
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: invoice.id, amountPaid: "800.00", method: "CASH", paidAt: new Date("2026-05-09T10:15:00.000Z"), recordedByUserId: user.id },
+    });
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: invoice.id, amountPaid: "700.00", method: "CASH", paidAt: new Date("2026-05-09T18:45:30.000Z"), recordedByUserId: user.id },
+    });
+
+    const scoped = createScopedClient(org.id);
+    // Range ending on today (2026-05-09)
+    const range = { from: new Date("2026-05-01"), to: new Date("2026-05-09") };
+    const buckets = buildMonthBuckets(range);
+
+    const trend = await getIncomeTrend(scoped, range, buckets);
+
+    expect(trend).toEqual([{ label: "2026-05", totalPaid: 1500 }]);
+  });
 });
 
 describe("getTenantCountTrend", () => {
