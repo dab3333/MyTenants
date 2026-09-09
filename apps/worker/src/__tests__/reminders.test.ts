@@ -16,7 +16,7 @@ async function makeOverdueInvoice(options: { email?: string | null } = {}) {
       firstName: "A",
       lastName: "Tenant",
       status: "ACTIVE",
-      email: options.email === undefined ? "a.tenant@example.com" : options.email,
+      email: options.email === undefined ? `a.tenant.${Math.random()}@example.com` : options.email,
     },
   });
   const tenancy = await prisma.tenancy.create({
