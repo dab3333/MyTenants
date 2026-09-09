@@ -5,6 +5,9 @@ import { requireOrgSession } from "@/lib/requireOrgSession";
 const NOTIFICATION_SCOPES = ["ALL", "BUILDING", "ROOM", "TENANT"] as const;
 type NotificationScopeValue = (typeof NOTIFICATION_SCOPES)[number];
 
+const NOTIFICATION_TRIGGERS = ["MANUAL", "AUTO_REMINDER"] as const;
+type NotificationTriggerValue = (typeof NOTIFICATION_TRIGGERS)[number];
+
 type ResolveRecipientsResult = { ok: true; tenants: Tenant[] } | { ok: false; notFound: string };
 
 async function resolveRecipients(
@@ -37,6 +40,34 @@ async function resolveRecipients(
     where: { tenancies: { some: { status: "ACTIVE", ...roomFilter } } },
   });
   return { ok: true, tenants };
+}
+
+export async function GET(request: Request) {
+  const session = await requireOrgSession();
+  if (!session.ok) return session.response;
+
+  const { searchParams } = new URL(request.url);
+  const scopeParam = searchParams.get("scope");
+  const triggerParam = searchParams.get("trigger");
+
+  if (scopeParam && !NOTIFICATION_SCOPES.includes(scopeParam as NotificationScopeValue)) {
+    return NextResponse.json({ error: "Invalid scope filter" }, { status: 400 });
+  }
+  if (triggerParam && !NOTIFICATION_TRIGGERS.includes(triggerParam as NotificationTriggerValue)) {
+    return NextResponse.json({ error: "Invalid trigger filter" }, { status: 400 });
+  }
+
+  const scoped = createScopedClient(session.organizationId);
+  const notifications = await scoped.notification.findMany({
+    where: {
+      ...(scopeParam ? { scope: scopeParam as NotificationScopeValue } : {}),
+      ...(triggerParam ? { trigger: triggerParam as NotificationTriggerValue } : {}),
+    },
+    orderBy: { sentAt: "desc" },
+    include: { recipients: true },
+  });
+
+  return NextResponse.json({ notifications });
 }
 
 export async function POST(request: Request) {

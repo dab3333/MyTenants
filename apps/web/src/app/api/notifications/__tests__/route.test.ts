@@ -4,7 +4,7 @@ vi.mock("@/lib/auth", () => ({ auth: vi.fn() }));
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@mytenants/db";
-import { POST } from "../route";
+import { GET, POST } from "../route";
 
 function sessionFor(organizationId: string) {
   vi.mocked(auth).mockResolvedValue({
@@ -191,5 +191,54 @@ describe("POST /api/notifications", () => {
     expect(recipient?.deliveryStatus).toBe("FAILED");
     expect(recipient?.failureReason).toBe("No email on file");
     expect(recipient?.recipientEmail).toBeNull();
+  });
+
+  it("GET lists notifications for the caller's organization, most recent first", async () => {
+    const { org } = await makeOrgWithActiveTenant();
+    sessionFor(org.id);
+    await POST(
+      new Request("http://localhost/api/notifications", {
+        method: "POST",
+        body: JSON.stringify({ scope: "ALL", subject: "First", body: "Hello" }),
+      })
+    );
+    await POST(
+      new Request("http://localhost/api/notifications", {
+        method: "POST",
+        body: JSON.stringify({ scope: "ALL", subject: "Second", body: "Hello again" }),
+      })
+    );
+
+    const res = await GET(new Request("http://localhost/api/notifications"));
+    const data = await res.json();
+
+    expect(data.notifications).toHaveLength(2);
+    expect(data.notifications[0].subject).toBe("Second");
+    expect(data.notifications[0].recipients).toHaveLength(1);
+  });
+
+  it("GET only lists notifications for the caller's organization", async () => {
+    const { org } = await makeOrgWithActiveTenant();
+    const otherOrg = await prisma.organization.create({ data: { name: "Other Notifications Org" } });
+    sessionFor(org.id);
+    await POST(
+      new Request("http://localhost/api/notifications", {
+        method: "POST",
+        body: JSON.stringify({ scope: "ALL", subject: "Mine", body: "Hello" }),
+      })
+    );
+
+    sessionFor(otherOrg.id);
+    const res = await GET(new Request("http://localhost/api/notifications"));
+    const data = await res.json();
+
+    expect(data.notifications).toHaveLength(0);
+  });
+
+  it("GET rejects an invalid scope filter with 400", async () => {
+    const { org } = await makeOrgWithActiveTenant();
+    sessionFor(org.id);
+    const res = await GET(new Request("http://localhost/api/notifications?scope=NOT_A_SCOPE"));
+    expect(res.status).toBe(400);
   });
 });
