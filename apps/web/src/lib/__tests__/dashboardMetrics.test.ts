@@ -314,4 +314,50 @@ describe("getOverdueSummary", () => {
 
     expect(result).toEqual({ count: 0, totalOwed: 0 });
   });
+
+  it("sums multiple payments correctly when netting out balance for a single overdue invoice", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Multi Payment ${Math.random()}` } });
+    const { tenancy } = await makeTenancy(org.id, { startDate: "2026-01-01" });
+    const overdueInvoice = await prisma.invoice.create({
+      data: { organizationId: org.id, tenancyId: tenancy.id, periodStart: new Date("2026-01-01"), periodEnd: new Date("2026-01-31"), amountDue: "3000.00", dueDate: new Date("2026-01-01"), status: "OVERDUE" },
+    });
+    const user = await makeUser(org.id);
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: overdueInvoice.id, amountPaid: "1000.00", method: "CASH", recordedByUserId: user.id },
+    });
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: overdueInvoice.id, amountPaid: "500.00", method: "CASH", recordedByUserId: user.id },
+    });
+
+    const scoped = createScopedClient(org.id);
+    const result = await getOverdueSummary(scoped);
+
+    expect(result).toEqual({ count: 1, totalOwed: 1500 });
+  });
+
+  it("aggregates count and totalOwed correctly across multiple overdue invoices in the same organization", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Multi Invoice ${Math.random()}` } });
+    const { tenancy: tenancy1 } = await makeTenancy(org.id, { startDate: "2026-01-01" });
+    const { tenancy: tenancy2 } = await makeTenancy(org.id, { startDate: "2026-02-01" });
+    const user = await makeUser(org.id);
+
+    const overdueInvoice1 = await prisma.invoice.create({
+      data: { organizationId: org.id, tenancyId: tenancy1.id, periodStart: new Date("2026-01-01"), periodEnd: new Date("2026-01-31"), amountDue: "3000.00", dueDate: new Date("2026-01-01"), status: "OVERDUE" },
+    });
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: overdueInvoice1.id, amountPaid: "500.00", method: "CASH", recordedByUserId: user.id },
+    });
+
+    const overdueInvoice2 = await prisma.invoice.create({
+      data: { organizationId: org.id, tenancyId: tenancy2.id, periodStart: new Date("2026-02-01"), periodEnd: new Date("2026-02-28"), amountDue: "2000.00", dueDate: new Date("2026-02-01"), status: "OVERDUE" },
+    });
+    await prisma.payment.create({
+      data: { organizationId: org.id, invoiceId: overdueInvoice2.id, amountPaid: "300.00", method: "CASH", recordedByUserId: user.id },
+    });
+
+    const scoped = createScopedClient(org.id);
+    const result = await getOverdueSummary(scoped);
+
+    expect(result).toEqual({ count: 2, totalOwed: 4200 });
+  });
 });
