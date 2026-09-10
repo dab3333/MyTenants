@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 import { EndTenancyButton } from "./EndTenancyButton";
 import { NewInvoiceForm } from "./NewInvoiceForm";
+import { EditTenantForm } from "./EditTenantForm";
 
 export default async function TenantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -43,6 +44,15 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
       {tenant.email && <p>Email: {tenant.email}</p>}
       {tenant.phone && <p>Phone: {tenant.phone}</p>}
       {tenant.emergencyContact && <p>Emergency contact: {tenant.emergencyContact}</p>}
+
+      <EditTenantForm
+        tenantId={tenant.id}
+        firstName={tenant.firstName}
+        lastName={tenant.lastName}
+        email={tenant.email}
+        phone={tenant.phone}
+        emergencyContact={tenant.emergencyContact}
+      />
 
       {activeTenancy && (
         <div className="mt-4">

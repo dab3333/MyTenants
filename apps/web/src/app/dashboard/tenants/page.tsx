@@ -7,30 +7,42 @@ import { AddProspectForm } from "./AddProspectForm";
 export default async function TenantsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; search?: string }>;
+  searchParams: Promise<{ status?: string; search?: string; buildingId?: string; roomId?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
 
-  const { status, search } = await searchParams;
+  const { status, search, buildingId, roomId } = await searchParams;
   const TENANT_STATUSES = ["PROSPECT", "ACTIVE", "MOVED_OUT"] as const;
   const validStatus = status && (TENANT_STATUSES as readonly string[]).includes(status) ? status : undefined;
 
   const scoped = createScopedClient(session.user.organizationId);
-  const tenants = await scoped.tenant.findMany({
-    where: {
-      ...(validStatus ? { status: validStatus as (typeof TENANT_STATUSES)[number] } : {}),
-      ...(search
-        ? {
-            OR: [
-              { firstName: { contains: search, mode: "insensitive" } },
-              { lastName: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-    },
-    orderBy: { createdAt: "desc" },
-  });
+
+  const roomFilter = roomId
+    ? { roomId }
+    : buildingId
+      ? { room: { floor: { buildingId } } }
+      : {};
+
+  const [tenants, buildings, rooms] = await Promise.all([
+    scoped.tenant.findMany({
+      where: {
+        ...(validStatus ? { status: validStatus as (typeof TENANT_STATUSES)[number] } : {}),
+        ...(buildingId || roomId ? { tenancies: { some: { status: "ACTIVE", ...roomFilter } } } : {}),
+        ...(search
+          ? {
+              OR: [
+                { firstName: { contains: search, mode: "insensitive" } },
+                { lastName: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    scoped.building.findMany({ orderBy: { name: "asc" } }),
+    scoped.room.findMany({ orderBy: { name: "asc" }, include: { floor: { include: { building: true } } } }),
+  ]);
 
   return (
     <main className="p-6">
@@ -53,11 +65,33 @@ export default async function TenantsListPage({
             <option value="MOVED_OUT">Moved out</option>
           </select>
         </label>
+        <label className="block text-sm">
+          Building
+          <select name="buildingId" defaultValue={buildingId ?? ""} className="border rounded px-2 py-1">
+            <option value="">All buildings</option>
+            {buildings.map((building) => (
+              <option key={building.id} value={building.id}>
+                {building.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          Room
+          <select name="roomId" defaultValue={roomId ?? ""} className="border rounded px-2 py-1">
+            <option value="">All rooms</option>
+            {rooms.map((room) => (
+              <option key={room.id} value={room.id}>
+                {room.floor.building.name} / {room.floor.label} / {room.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <button type="submit" className="border rounded px-3 py-1">Filter</button>
       </form>
       <ul className="space-y-2">
         {tenants.map((tenant) => (
-          <li key={tenant.id}>
+          <li key={tenant.id} data-testid="tenant-row">
             <Link className="text-blue-700 underline" href={`/dashboard/tenants/${tenant.id}`}>
               {tenant.firstName} {tenant.lastName}
             </Link>
