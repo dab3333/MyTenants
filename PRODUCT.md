@@ -36,9 +36,9 @@ Self-hosted, one-VPS-per-landlord deployment (`git pull && docker compose up -d 
 
 **Built so far:** Building/Floor/Room CRUD with an occupancy grid; Tenant CRUD with search/status/building filters; tenant admission (new-or-existing prospect, room picker limited to free-capacity rooms, transactional creation); end-tenancy (frees the room, preserves history); Payment Management (worker-generated monthly invoices on each tenancy's billing day, manual invoice creation, partial payments, PENDING/PARTIAL/PAID/OVERDUE status recalculation); Notifications (manual announcements scoped to all/building/room/tenant, automated 7-day-cooldown overdue reminders, pluggable Resend email abstraction that safely no-ops until a real API key is configured); Dashboard (date-range-filterable income trend and tenant-count-over-time charts, capacity-based occupancy per building, overdue count/amount summary).
 
-**Not yet built:** nothing at the feature level — all three previously-planned areas (Payment Management, Notifications, Dashboard) are complete.
+**Not yet built:** nothing at the feature level — all three previously-planned areas (Payment Management, Notifications, Dashboard) are complete, and the tenant profile edit + building/room filtering gaps are closed.
 
-**Known undecided/open gaps:** no UI yet for editing a tenant's profile fields or filtering the tenant list by building/room (the APIs already support both — only the UI surface is missing).
+**Known undecided/open gaps:** none currently tracked.
 
 **Known issues (pre-existing, not yet fixed):**
 - `AddRoomForm.tsx` has a race condition: its controlled form only resets state after the add-room POST resolves, so submitting a second room immediately after the first can silently lose the second room's typed values (no visible error — HTML5 required-field validation just blocks the empty resubmit). Found via e2e testing during the Dashboard plan; needs either an optimistic state reset or a submit-disable guard.
