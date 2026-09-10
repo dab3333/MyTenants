@@ -41,7 +41,6 @@ Self-hosted, one-VPS-per-landlord deployment (`git pull && docker compose up -d 
 **Known undecided/open gaps:** none currently tracked.
 
 **Known issues (pre-existing, not yet fixed):**
-- `AddRoomForm.tsx` has a race condition: its controlled form only resets state after the add-room POST resolves, so submitting a second room immediately after the first can silently lose the second room's typed values (no visible error — HTML5 required-field validation just blocks the empty resubmit). Found via e2e testing during the Dashboard plan; needs either an optimistic state reset or a submit-disable guard.
 - One pre-existing `tsc --noEmit` error in `apps/web/src/app/api/invoices/__tests__/route.test.ts:34` (a test-only type mismatch, does not affect runtime behavior), from the Payment Management plan.
 
 ## Brand Commitments
