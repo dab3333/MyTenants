@@ -6,7 +6,7 @@ import type { IncomeTrendPoint } from "@/lib/dashboardMetrics";
 export function IncomeTrendChart({ data }: { data: IncomeTrendPoint[] }) {
   const hasData = data.some((point) => point.totalPaid > 0);
   if (!hasData) {
-    return <p className="text-gray-500">No income recorded in this range yet.</p>;
+    return <p className="text-zinc-500">No income recorded in this range yet.</p>;
   }
 
   return (

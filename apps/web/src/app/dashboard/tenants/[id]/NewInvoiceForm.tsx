@@ -46,22 +46,22 @@ export function NewInvoiceForm({ tenancyId }: { tenancyId: string }) {
     <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
       <label className="block text-sm">
         Period start
-        <input type="date" className="border rounded px-2 py-1 block" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} required />
+        <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} required />
       </label>
       <label className="block text-sm">
         Period end
-        <input type="date" className="border rounded px-2 py-1 block" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
+        <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
       </label>
       <label className="block text-sm">
         Due date
-        <input type="date" className="border rounded px-2 py-1 block" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+        <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
       </label>
       <label className="block text-sm">
         Amount due
-        <input type="number" min={0} step="0.01" className="border rounded px-2 py-1 block" value={amountDue} onChange={(e) => setAmountDue(e.target.value)} required />
+        <input type="number" min={0} step="0.01" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={amountDue} onChange={(e) => setAmountDue(e.target.value)} required />
       </label>
       {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Creating..." : "New Invoice"}
       </button>
     </form>

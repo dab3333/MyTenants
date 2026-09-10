@@ -16,9 +16,9 @@ export default async function AdmitTenantPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Admit Tenant</h1>
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-4">Admit Tenant</h1>
       {availableRooms.length === 0 ? (
-        <p className="text-gray-500">No rooms with free capacity. Add a building/floor/room first.</p>
+        <p className="text-zinc-500">No rooms with free capacity. Add a building/floor/room first.</p>
       ) : (
         <AdmitTenantForm availableRooms={availableRooms} prospects={prospects} />
       )}

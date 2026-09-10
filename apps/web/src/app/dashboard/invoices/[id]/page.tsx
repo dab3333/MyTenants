@@ -39,7 +39,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">
         Invoice — {invoice.tenancy.tenant.firstName} {invoice.tenancy.tenant.lastName}
       </h1>
       <p className="mb-4">
@@ -60,19 +60,19 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       <p>Amount due: {invoice.amountDue.toString()}</p>
       <p>Paid so far: {totalPaid}</p>
 
-      <h2 className="text-lg font-medium mt-6 mb-2">Payments</h2>
+      <h2 className="text-lg font-medium text-zinc-900 mt-6 mb-2">Payments</h2>
       <ul className="space-y-1">
         {invoice.payments.map((payment) => (
           <li key={payment.id} data-testid="payment-row">
             {payment.paidAt.toISOString().slice(0, 10)} — {payment.amountPaid.toString()} — {payment.method}
           </li>
         ))}
-        {invoice.payments.length === 0 && <li className="text-gray-500">No payments recorded yet.</li>}
+        {invoice.payments.length === 0 && <li className="text-zinc-500">No payments recorded yet.</li>}
       </ul>
 
       {invoice.status !== "PAID" && <RecordPaymentForm invoiceId={invoice.id} />}
 
-      <h2 className="text-lg font-medium mt-6 mb-2">Edit Invoice</h2>
+      <h2 className="text-lg font-medium text-zinc-900 mt-6 mb-2">Edit Invoice</h2>
       <EditInvoiceForm
         invoiceId={invoice.id}
         periodStart={invoice.periodStart.toISOString().slice(0, 10)}

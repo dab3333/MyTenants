@@ -61,11 +61,11 @@ export function EditTenantForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-4">
-      <h2 className="text-lg font-medium">Edit Tenant</h2>
+      <h2 className="text-lg font-medium text-zinc-900">Edit Tenant</h2>
       <label className="block text-sm">
         First name
         <input
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={firstNameValue}
           onChange={(e) => setFirstNameValue(e.target.value)}
           required
@@ -74,7 +74,7 @@ export function EditTenantForm({
       <label className="block text-sm">
         Last name
         <input
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={lastNameValue}
           onChange={(e) => setLastNameValue(e.target.value)}
           required
@@ -84,7 +84,7 @@ export function EditTenantForm({
         Email
         <input
           type="email"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={emailValue}
           onChange={(e) => setEmailValue(e.target.value)}
         />
@@ -92,7 +92,7 @@ export function EditTenantForm({
       <label className="block text-sm">
         Phone
         <input
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={phoneValue}
           onChange={(e) => setPhoneValue(e.target.value)}
         />
@@ -100,7 +100,7 @@ export function EditTenantForm({
       <label className="block text-sm">
         Emergency contact
         <input
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={emergencyContactValue}
           onChange={(e) => setEmergencyContactValue(e.target.value)}
         />
@@ -110,7 +110,7 @@ export function EditTenantForm({
           {error}
         </p>
       )}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Saving..." : "Save Changes"}
       </button>
     </form>

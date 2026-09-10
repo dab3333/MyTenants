@@ -43,7 +43,7 @@ export function AddProspectForm() {
         <label className="block text-sm">
           First name
           <input
-            className="border rounded px-2 py-1 block"
+            className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
@@ -54,7 +54,7 @@ export function AddProspectForm() {
         <label className="block text-sm">
           Last name
           <input
-            className="border rounded px-2 py-1 block"
+            className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
@@ -62,7 +62,7 @@ export function AddProspectForm() {
         </label>
       </div>
       {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Adding..." : "Add Prospect"}
       </button>
     </form>

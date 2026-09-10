@@ -37,10 +37,10 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold">
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">
         {tenant.firstName} {tenant.lastName}
       </h1>
-      <p className="text-gray-500 mb-4">{tenant.status}</p>
+      <p className="text-zinc-500 mb-4">{tenant.status}</p>
       {tenant.email && <p>Email: {tenant.email}</p>}
       {tenant.phone && <p>Phone: {tenant.phone}</p>}
       {tenant.emergencyContact && <p>Emergency contact: {tenant.emergencyContact}</p>}
@@ -63,7 +63,7 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
         </div>
       )}
 
-      <h2 className="text-lg font-medium mt-6 mb-2">Tenancy History</h2>
+      <h2 className="text-lg font-medium text-zinc-900 mt-6 mb-2">Tenancy History</h2>
       <ul className="space-y-4">
         {tenant.tenancies.map((tenancy) => (
           <li key={tenancy.id} data-testid="tenancy-row">
@@ -77,22 +77,22 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
                 const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amountPaid), 0);
                 return (
                   <li key={invoice.id} data-testid="invoice-row">
-                    <Link className="text-blue-700 underline" href={`/dashboard/invoices/${invoice.id}`}>
+                    <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors" href={`/dashboard/invoices/${invoice.id}`}>
                       {invoice.periodStart.toISOString().slice(0, 10)} – {invoice.periodEnd.toISOString().slice(0, 10)}
                     </Link>
-                    <span className="text-gray-500 text-sm">
+                    <span className="text-zinc-500 text-sm">
                       {" "}
                       — {totalPaid}/{invoice.amountDue.toString()} — {invoice.status}
                     </span>
                   </li>
                 );
               })}
-              {tenancy.invoices.length === 0 && <li className="text-gray-500">No invoices yet.</li>}
+              {tenancy.invoices.length === 0 && <li className="text-zinc-500">No invoices yet.</li>}
             </ul>
             <NewInvoiceForm tenancyId={tenancy.id} />
           </li>
         ))}
-        {tenant.tenancies.length === 0 && <li className="text-gray-500">No tenancy history yet.</li>}
+        {tenant.tenancies.length === 0 && <li className="text-zinc-500">No tenancy history yet.</li>}
       </ul>
     </main>
   );

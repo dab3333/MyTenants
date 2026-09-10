@@ -77,17 +77,17 @@ export function AdmitTenantForm({
         <>
           <label className="block text-sm">
             First name
-            <input className="border rounded px-2 py-1 block" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+            <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
           </label>
           <label className="block text-sm">
             Last name
-            <input className="border rounded px-2 py-1 block" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+            <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
           </label>
         </>
       ) : (
         <label className="block text-sm">
           Prospect
-          <select className="border rounded px-2 py-1 block" value={prospectId} onChange={(e) => setProspectId(e.target.value)} required>
+          <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={prospectId} onChange={(e) => setProspectId(e.target.value)} required>
             {prospects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.firstName} {p.lastName}
@@ -100,7 +100,7 @@ export function AdmitTenantForm({
       <label className="block text-sm">
         Room
         <select
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={roomId}
           onChange={(e) => {
             const nextRoomId = e.target.value;
@@ -122,7 +122,7 @@ export function AdmitTenantForm({
         Start date
         <input
           type="date"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={startDate}
           onChange={(e) => {
             const nextStartDate = e.target.value;
@@ -141,7 +141,7 @@ export function AdmitTenantForm({
           type="number"
           min={1}
           max={31}
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={billingDay}
           onChange={(e) => setBillingDay(e.target.value)}
           required
@@ -149,15 +149,15 @@ export function AdmitTenantForm({
       </label>
       <label className="block text-sm">
         Monthly rate
-        <input type="number" min={0} className="border rounded px-2 py-1 block" value={monthlyRate} onChange={(e) => setMonthlyRate(e.target.value)} required />
+        <input type="number" min={0} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={monthlyRate} onChange={(e) => setMonthlyRate(e.target.value)} required />
       </label>
       <label className="block text-sm">
         Deposit amount
-        <input type="number" min={0} className="border rounded px-2 py-1 block" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} required />
+        <input type="number" min={0} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} required />
       </label>
 
       {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Admitting..." : "Admit Tenant"}
       </button>
     </form>

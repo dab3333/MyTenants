@@ -23,20 +23,20 @@ export default async function AnnouncementsPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Announcements</h1>
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-4">Announcements</h1>
       <NewAnnouncementForm buildings={buildings} rooms={rooms} tenants={tenants} />
 
-      <h2 className="text-xl font-semibold mt-8 mb-4">History</h2>
+      <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mt-8 mb-4">History</h2>
       <ul className="space-y-2">
         {notifications.map((notification) => {
           const sentCount = notification.recipients.filter((r) => r.deliveryStatus === "SENT").length;
           const failedCount = notification.recipients.filter((r) => r.deliveryStatus === "FAILED").length;
           return (
             <li key={notification.id} data-testid="notification-row">
-              <Link className="text-blue-700 underline" href={`/dashboard/announcements/${notification.id}`}>
+              <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors" href={`/dashboard/announcements/${notification.id}`}>
                 {notification.subject}
               </Link>
-              <span className="text-gray-500 text-sm">
+              <span className="text-zinc-500 text-sm">
                 {" "}
                 — {notification.scope} — {notification.trigger} — {notification.sentAt.toISOString().slice(0, 10)}{" "}
               </span>
@@ -51,7 +51,7 @@ export default async function AnnouncementsPage() {
             </li>
           );
         })}
-        {notifications.length === 0 && <li className="text-gray-500">No announcements sent yet.</li>}
+        {notifications.length === 0 && <li className="text-zinc-500">No announcements sent yet.</li>}
       </ul>
     </main>
   );

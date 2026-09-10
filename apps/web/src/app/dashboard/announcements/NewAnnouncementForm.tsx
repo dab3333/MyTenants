@@ -68,7 +68,7 @@ export function NewAnnouncementForm({
       <label className="block text-sm">
         Scope
         <select
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={scope}
           onChange={(e) => setScope(e.target.value as (typeof SCOPES)[number])}
         >
@@ -82,7 +82,7 @@ export function NewAnnouncementForm({
       {scope === "BUILDING" && (
         <label className="block text-sm">
           Building
-          <select className="border rounded px-2 py-1 block" value={buildingId} onChange={(e) => setBuildingId(e.target.value)} required>
+          <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={buildingId} onChange={(e) => setBuildingId(e.target.value)} required>
             {buildings.map((building) => (
               <option key={building.id} value={building.id}>
                 {building.name}
@@ -95,7 +95,7 @@ export function NewAnnouncementForm({
       {scope === "ROOM" && (
         <label className="block text-sm">
           Room
-          <select className="border rounded px-2 py-1 block" value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
+          <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
             {rooms.map((room) => (
               <option key={room.id} value={room.id}>
                 {room.floor.building.name} / {room.floor.label} / {room.name}
@@ -108,7 +108,7 @@ export function NewAnnouncementForm({
       {scope === "TENANT" && (
         <label className="block text-sm">
           Tenant
-          <select className="border rounded px-2 py-1 block" value={tenantId} onChange={(e) => setTenantId(e.target.value)} required>
+          <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={tenantId} onChange={(e) => setTenantId(e.target.value)} required>
             {tenants.map((tenant) => (
               <option key={tenant.id} value={tenant.id}>
                 {tenant.firstName} {tenant.lastName}
@@ -120,11 +120,11 @@ export function NewAnnouncementForm({
 
       <label className="block text-sm">
         Subject
-        <input className="border rounded px-2 py-1 block w-full" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+        <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block w-full" value={subject} onChange={(e) => setSubject(e.target.value)} required />
       </label>
       <label className="block text-sm">
         Body
-        <textarea className="border rounded px-2 py-1 block w-full" value={body} onChange={(e) => setBody(e.target.value)} required />
+        <textarea className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block w-full" value={body} onChange={(e) => setBody(e.target.value)} required />
       </label>
 
       {error && (
@@ -132,7 +132,7 @@ export function NewAnnouncementForm({
           {error}
         </p>
       )}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Sending..." : "Send Announcement"}
       </button>
     </form>

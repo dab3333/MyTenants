@@ -31,8 +31,12 @@ export function EndTenancyButton({ tenancyId }: { tenancyId: string }) {
 
   return (
     <div>
-      <button onClick={handleClick} disabled={pending} className="bg-red-700 text-white rounded px-3 py-1">
-        End Tenancy
+      <button
+        onClick={handleClick}
+        disabled={pending}
+        className="rounded bg-red-700 px-3 py-1.5 font-medium text-white transition-colors hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 disabled:bg-red-300 disabled:cursor-not-allowed"
+      >
+        {pending ? "Ending..." : "End Tenancy"}
       </button>
       {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
     </div>

@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+::selection {
+  background-color: theme("colors.clay.200");
+  color: theme("colors.clay.900");
+}
+
+:focus-visible {
+  outline: 2px solid theme("colors.clay.500");
+  outline-offset: 2px;
+}

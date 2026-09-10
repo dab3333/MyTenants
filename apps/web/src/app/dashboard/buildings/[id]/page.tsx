@@ -12,9 +12,9 @@ function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "
 }
 
 const STATUS_CLASSES: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "bg-gray-100",
-  partial: "bg-yellow-100",
-  full: "bg-red-100",
+  vacant: "bg-zinc-100 text-zinc-600",
+  partial: "bg-amber-100 text-amber-800",
+  full: "bg-red-100 text-red-800",
 };
 
 export default async function BuildingDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,15 +35,15 @@ export default async function BuildingDetailPage({ params }: { params: Promise<{
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold">{building.name}</h1>
-      {building.address && <p className="text-gray-500 mb-4">{building.address}</p>}
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{building.name}</h1>
+      {building.address && <p className="text-zinc-500 mb-4">{building.address}</p>}
 
       <AddFloorForm buildingId={building.id} />
 
       <div className="space-y-6">
         {building.floors.map((floor) => (
           <section key={floor.id}>
-            <h2 className="text-lg font-medium mb-2">{floor.label}</h2>
+            <h2 className="text-lg font-medium text-zinc-900 mb-2">{floor.label}</h2>
             <div className="flex gap-3 flex-wrap mb-2">
               {floor.rooms.map((room) => {
                 const status = statusFor(room.occupied, room.capacity);
@@ -61,12 +61,12 @@ export default async function BuildingDetailPage({ params }: { params: Promise<{
                   </div>
                 );
               })}
-              {floor.rooms.length === 0 && <p className="text-gray-500 text-sm">No rooms yet.</p>}
+              {floor.rooms.length === 0 && <p className="text-zinc-500 text-sm">No rooms yet.</p>}
             </div>
             <AddRoomForm floorId={floor.id} />
           </section>
         ))}
-        {building.floors.length === 0 && <p className="text-gray-500">No floors yet.</p>}
+        {building.floors.length === 0 && <p className="text-zinc-500">No floors yet.</p>}
       </div>
     </main>
   );

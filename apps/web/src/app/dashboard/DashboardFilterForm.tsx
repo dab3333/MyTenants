@@ -29,7 +29,7 @@ export function DashboardFilterForm({
           name="preset"
           value={selected}
           onChange={(e) => setSelected(e.target.value as (typeof DATE_RANGE_PRESETS)[number])}
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
         >
           {DATE_RANGE_PRESETS.map((value) => (
             <option key={value} value={value}>
@@ -43,16 +43,16 @@ export function DashboardFilterForm({
         <>
           <label className="block text-sm">
             From
-            <input type="date" name="from" defaultValue={from} className="border rounded px-2 py-1 block" required />
+            <input type="date" name="from" defaultValue={from} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" required />
           </label>
           <label className="block text-sm">
             To
-            <input type="date" name="to" defaultValue={to} className="border rounded px-2 py-1 block" required />
+            <input type="date" name="to" defaultValue={to} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" required />
           </label>
         </>
       )}
 
-      <button type="submit" className="border rounded px-3 py-1">
+      <button type="submit" className="border border-zinc-300 rounded px-3 py-1 font-medium text-zinc-700 hover:bg-zinc-50 hover:border-clay-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 transition-colors">
         Apply
       </button>
     </form>

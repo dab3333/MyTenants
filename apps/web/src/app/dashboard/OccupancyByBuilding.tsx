@@ -7,14 +7,14 @@ function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "
 }
 
 const STATUS_CLASSES: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "bg-gray-100",
-  partial: "bg-yellow-100",
-  full: "bg-red-100",
+  vacant: "bg-zinc-100 text-zinc-600",
+  partial: "bg-amber-100 text-amber-800",
+  full: "bg-red-100 text-red-800",
 };
 
 export function OccupancyByBuilding({ buildings }: { buildings: BuildingOccupancy[] }) {
   if (buildings.length === 0) {
-    return <p className="text-gray-500">No buildings yet.</p>;
+    return <p className="text-zinc-500">No buildings yet.</p>;
   }
 
   return (

@@ -58,7 +58,7 @@ export function EditInvoiceForm({
         Period start
         <input
           type="date"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={form.periodStart}
           onChange={(e) => setForm({ ...form, periodStart: e.target.value })}
           required
@@ -68,7 +68,7 @@ export function EditInvoiceForm({
         Period end
         <input
           type="date"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={form.periodEnd}
           onChange={(e) => setForm({ ...form, periodEnd: e.target.value })}
           required
@@ -78,7 +78,7 @@ export function EditInvoiceForm({
         Due date
         <input
           type="date"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={form.dueDate}
           onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
           required
@@ -90,7 +90,7 @@ export function EditInvoiceForm({
           type="number"
           min={0}
           step="0.01"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={form.amountDue}
           onChange={(e) => setForm({ ...form, amountDue: e.target.value })}
           required
@@ -101,7 +101,7 @@ export function EditInvoiceForm({
           {error}
         </p>
       )}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Saving..." : "Save Invoice"}
       </button>
     </form>

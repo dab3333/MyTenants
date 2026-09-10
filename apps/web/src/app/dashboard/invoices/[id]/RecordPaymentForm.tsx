@@ -49,7 +49,7 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
           type="number"
           min={0}
           step="0.01"
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={amountPaid}
           onChange={(e) => setAmountPaid(e.target.value)}
           required
@@ -58,7 +58,7 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
       <label className="block text-sm">
         Method
         <select
-          className="border rounded px-2 py-1 block"
+          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
           value={method}
           onChange={(e) => setMethod(e.target.value as (typeof PAYMENT_METHODS)[number])}
         >
@@ -71,14 +71,14 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
       </label>
       <label className="block text-sm">
         Notes
-        <input className="border rounded px-2 py-1 block" value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
       {error && (
         <p role="alert" className="text-red-600 text-sm">
           {error}
         </p>
       )}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
         {isSubmitting ? "Recording..." : "Record Payment"}
       </button>
     </form>
