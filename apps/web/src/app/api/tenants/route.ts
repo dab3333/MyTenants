@@ -12,17 +12,22 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const statusParam = searchParams.get("status");
   const buildingId = searchParams.get("buildingId");
+  const roomId = searchParams.get("roomId");
   const search = searchParams.get("search");
 
   if (statusParam && !TENANT_STATUSES.includes(statusParam as TenantStatus)) {
     return NextResponse.json({ error: "Invalid status filter" }, { status: 400 });
   }
 
+  const roomFilter = roomId
+    ? { roomId }
+    : buildingId
+      ? { room: { floor: { buildingId } } }
+      : {};
+
   const where: Prisma.TenantWhereInput = {
     ...(statusParam ? { status: statusParam as TenantStatus } : {}),
-    ...(buildingId
-      ? { tenancies: { some: { status: "ACTIVE", room: { floor: { buildingId } } } } }
-      : {}),
+    ...(buildingId || roomId ? { tenancies: { some: { status: "ACTIVE", ...roomFilter } } } : {}),
     ...(search
       ? {
           OR: [

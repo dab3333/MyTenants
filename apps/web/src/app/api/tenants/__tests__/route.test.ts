@@ -117,4 +117,26 @@ describe("GET/POST /api/tenants", () => {
     expect(data.tenants).toHaveLength(1);
     expect(data.tenants[0].lastName).toBe("BuildingA");
   });
+
+  it("filters by roomId, matching only tenants with an active tenancy in that room", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Room Filter" } });
+    const building = await prisma.building.create({ data: { organizationId: org.id, name: "Hall" } });
+    const floor = await prisma.floor.create({ data: { organizationId: org.id, buildingId: building.id, label: "1F" } });
+    const room1 = await prisma.room.create({ data: { organizationId: org.id, floorId: floor.id, name: "101", capacity: 2, monthlyRate: "3000.00" } });
+    const room2 = await prisma.room.create({ data: { organizationId: org.id, floorId: floor.id, name: "102", capacity: 2, monthlyRate: "3000.00" } });
+    const tenant1 = await prisma.tenant.create({ data: { organizationId: org.id, firstName: "In", lastName: "Room1", status: "ACTIVE" } });
+    const tenant2 = await prisma.tenant.create({ data: { organizationId: org.id, firstName: "In", lastName: "Room2", status: "ACTIVE" } });
+    await prisma.tenancy.create({
+      data: { organizationId: org.id, tenantId: tenant1.id, roomId: room1.id, startDate: new Date(), monthlyRate: "3000.00", depositAmount: "3000.00", status: "ACTIVE" },
+    });
+    await prisma.tenancy.create({
+      data: { organizationId: org.id, tenantId: tenant2.id, roomId: room2.id, startDate: new Date(), monthlyRate: "3000.00", depositAmount: "3000.00", status: "ACTIVE" },
+    });
+
+    sessionFor(org.id);
+    const res = await GET(new Request(`http://localhost/api/tenants?roomId=${room1.id}`));
+    const data = await res.json();
+    expect(data.tenants).toHaveLength(1);
+    expect(data.tenants[0].lastName).toBe("Room1");
+  });
 });
