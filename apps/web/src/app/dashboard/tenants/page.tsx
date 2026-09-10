@@ -46,12 +46,12 @@ export default async function TenantsListPage({
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-4">Tenants</h1>
-      <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors mb-4 inline-block" href="/dashboard/tenants/admit">
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-6">Tenants</h1>
+      <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors inline-block" href="/dashboard/tenants/admit">
         Admit Tenant
       </Link>
       <AddProspectForm />
-      <form className="mb-4 flex gap-2" method="get">
+      <form className="mt-8 mb-4 flex flex-wrap gap-2 border-t border-zinc-200 pt-6" method="get">
         <label className="block text-sm font-medium text-zinc-700">
           Search
           <input name="search" defaultValue={search ?? ""} placeholder="Search by name" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow" />

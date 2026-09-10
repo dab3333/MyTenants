@@ -35,12 +35,14 @@ export default async function BuildingDetailPage({ params }: { params: Promise<{
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{building.name}</h1>
-      {building.address && <p className="text-zinc-500 mb-4">{building.address}</p>}
+      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-1">{building.name}</h1>
+      {building.address && <p className="text-zinc-500 mb-6">{building.address}</p>}
 
-      <AddFloorForm buildingId={building.id} />
+      <div className="mt-6">
+        <AddFloorForm buildingId={building.id} />
+      </div>
 
-      <div className="space-y-6">
+      <div className="mt-8 space-y-6">
         {building.floors.map((floor) => (
           <section key={floor.id}>
             <h2 className="text-lg font-semibold text-zinc-900 mb-2">{floor.label}</h2>

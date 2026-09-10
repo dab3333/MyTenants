@@ -45,17 +45,19 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
       {tenant.phone && <p>Phone: {tenant.phone}</p>}
       {tenant.emergencyContact && <p>Emergency contact: {tenant.emergencyContact}</p>}
 
-      <EditTenantForm
-        tenantId={tenant.id}
-        firstName={tenant.firstName}
-        lastName={tenant.lastName}
-        email={tenant.email}
-        phone={tenant.phone}
-        emergencyContact={tenant.emergencyContact}
-      />
+      <div className="mt-8">
+        <EditTenantForm
+          tenantId={tenant.id}
+          firstName={tenant.firstName}
+          lastName={tenant.lastName}
+          email={tenant.email}
+          phone={tenant.phone}
+          emergencyContact={tenant.emergencyContact}
+        />
+      </div>
 
       {activeTenancy && (
-        <div className="mt-4">
+        <div className="mt-8">
           <p>
             Currently in {activeTenancy.room.floor.building.name} / {activeTenancy.room.floor.label} / {activeTenancy.room.name}
           </p>
@@ -63,7 +65,7 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
         </div>
       )}
 
-      <h2 className="text-lg font-semibold text-zinc-900 mt-6 mb-2">Tenancy History</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 mt-8 mb-2">Tenancy History</h2>
       <ul className="space-y-4">
         {tenant.tenancies.map((tenancy) => (
           <li key={tenancy.id} data-testid="tenancy-row">
