@@ -28,10 +28,6 @@ test("dashboard shows income, tenant count, occupancy, and overdue widgets, and 
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
   await page.getByRole("button", { name: "Add Room" }).click();
-  // Wait for the first room to render before starting the second submission —
-  // the add-room form only clears its own fields once its request resolves, so
-  // typing into the next room immediately can race that reset.
-  await expect(page.getByTestId("room-card").filter({ hasText: "101" })).toBeVisible();
   await page.getByLabel("Room name").fill("102");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");

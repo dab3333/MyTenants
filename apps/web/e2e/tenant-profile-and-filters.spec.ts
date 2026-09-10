@@ -27,11 +27,6 @@ test("edit a tenant's profile and filter the tenant list by building and room", 
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
   await page.getByRole("button", { name: "Add Room" }).click();
-  // AddRoomForm.tsx resets its state only after its POST resolves, so a second
-  // submission typed immediately after the first can be silently clobbered
-  // (see the Dashboard plan's e2e-testing notes) — wait for the first room to
-  // actually render before typing the second.
-  await expect(page.getByTestId("room-card").filter({ hasText: "101" })).toBeVisible();
   await page.getByLabel("Room name").fill("102");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");

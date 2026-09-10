@@ -9,23 +9,33 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
   const [capacity, setCapacity] = useState("1");
   const [monthlyRate, setMonthlyRate] = useState("0");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     setError(null);
-    const res = await fetch(`/api/floors/${floorId}/rooms`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, capacity: Number(capacity), monthlyRate: Number(monthlyRate) }),
-    });
-    if (res.ok) {
-      setName("");
-      setCapacity("1");
-      setMonthlyRate("0");
-      router.refresh();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to add room");
+
+    try {
+      const res = await fetch(`/api/floors/${floorId}/rooms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, capacity: Number(capacity), monthlyRate: Number(monthlyRate) }),
+      });
+      if (res.ok) {
+        setName("");
+        setCapacity("1");
+        setMonthlyRate("0");
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to add room");
+      }
+    } catch {
+      setError("Failed to add room");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -39,6 +49,7 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            disabled={isSubmitting}
           />
         </label>
       </div>
@@ -52,6 +63,7 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
             value={capacity}
             onChange={(e) => setCapacity(e.target.value)}
             required
+            disabled={isSubmitting}
           />
         </label>
       </div>
@@ -65,12 +77,13 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
             value={monthlyRate}
             onChange={(e) => setMonthlyRate(e.target.value)}
             required
+            disabled={isSubmitting}
           />
         </label>
       </div>
       {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-black text-white rounded px-3 py-1">
-        Add Room
+      <button type="submit" className="bg-black text-white rounded px-3 py-1" disabled={isSubmitting}>
+        {isSubmitting ? "Adding..." : "Add Room"}
       </button>
     </form>
   );
