@@ -26,7 +26,7 @@ export default async function AnnouncementsPage() {
       <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-4">Announcements</h1>
       <NewAnnouncementForm buildings={buildings} rooms={rooms} tenants={tenants} />
 
-      <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mt-8 mb-4">History</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 mt-8 mb-4">History</h2>
       <ul className="space-y-2">
         {notifications.map((notification) => {
           const sentCount = notification.recipients.filter((r) => r.deliveryStatus === "SENT").length;

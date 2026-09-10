@@ -43,7 +43,7 @@ export default async function BuildingDetailPage({ params }: { params: Promise<{
       <div className="space-y-6">
         {building.floors.map((floor) => (
           <section key={floor.id}>
-            <h2 className="text-lg font-medium text-zinc-900 mb-2">{floor.label}</h2>
+            <h2 className="text-lg font-semibold text-zinc-900 mb-2">{floor.label}</h2>
             <div className="flex gap-3 flex-wrap mb-2">
               {floor.rooms.map((room) => {
                 const status = statusFor(room.occupied, room.capacity);

@@ -37,7 +37,7 @@ export default async function PaymentsPage({
     <main className="p-6">
       <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-4">Payments</h1>
       <form className="mb-4 flex gap-2" method="get">
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Status
           <select name="status" defaultValue={status ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
             <option value="">All statuses</option>

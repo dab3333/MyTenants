@@ -52,11 +52,11 @@ export default async function TenantsListPage({
       </Link>
       <AddProspectForm />
       <form className="mb-4 flex gap-2" method="get">
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Search
           <input name="search" defaultValue={search ?? ""} placeholder="Search by name" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow" />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Status
           <select name="status" defaultValue={status ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
             <option value="">All statuses</option>
@@ -65,7 +65,7 @@ export default async function TenantsListPage({
             <option value="MOVED_OUT">Moved out</option>
           </select>
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Building
           <select name="buildingId" defaultValue={buildingId ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
             <option value="">All buildings</option>
@@ -76,7 +76,7 @@ export default async function TenantsListPage({
             ))}
           </select>
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Room
           <select name="roomId" defaultValue={roomId ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
             <option value="">All rooms</option>

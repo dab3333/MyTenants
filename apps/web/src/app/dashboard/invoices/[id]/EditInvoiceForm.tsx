@@ -54,7 +54,7 @@ export function EditInvoiceForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Period start
         <input
           type="date"
@@ -64,7 +64,7 @@ export function EditInvoiceForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Period end
         <input
           type="date"
@@ -74,7 +74,7 @@ export function EditInvoiceForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Due date
         <input
           type="date"
@@ -84,7 +84,7 @@ export function EditInvoiceForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Amount due
         <input
           type="number"

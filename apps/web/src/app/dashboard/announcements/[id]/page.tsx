@@ -25,9 +25,9 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
       <p className="text-zinc-500 text-sm mb-4">
         {notification.scope} — {notification.trigger} — {notification.sentAt.toISOString().slice(0, 10)}
       </p>
-      <p className="whitespace-pre-wrap mb-6">{notification.body}</p>
+      <p className="max-w-prose whitespace-pre-wrap leading-relaxed text-zinc-800 mb-6">{notification.body}</p>
 
-      <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mb-2">Recipients</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 mb-2">Recipients</h2>
       <ul className="space-y-1">
         {notification.recipients.map((recipient) => (
           <li key={recipient.id} data-testid="recipient-row">

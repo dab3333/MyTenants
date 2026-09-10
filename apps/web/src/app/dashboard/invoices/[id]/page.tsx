@@ -60,7 +60,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       <p>Amount due: {invoice.amountDue.toString()}</p>
       <p>Paid so far: {totalPaid}</p>
 
-      <h2 className="text-lg font-medium text-zinc-900 mt-6 mb-2">Payments</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 mt-6 mb-2">Payments</h2>
       <ul className="space-y-1">
         {invoice.payments.map((payment) => (
           <li key={payment.id} data-testid="payment-row">
@@ -72,7 +72,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
       {invoice.status !== "PAID" && <RecordPaymentForm invoiceId={invoice.id} />}
 
-      <h2 className="text-lg font-medium text-zinc-900 mt-6 mb-2">Edit Invoice</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 mt-6 mb-2">Edit Invoice</h2>
       <EditInvoiceForm
         invoiceId={invoice.id}
         periodStart={invoice.periodStart.toISOString().slice(0, 10)}

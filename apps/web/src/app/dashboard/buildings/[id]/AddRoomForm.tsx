@@ -42,7 +42,7 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex gap-2 items-end mb-4">
       <div>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Room name
           <input
             className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow w-20 block"
@@ -54,7 +54,7 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
         </label>
       </div>
       <div>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Capacity
           <input
             className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow w-16 block"
@@ -68,7 +68,7 @@ export function AddRoomForm({ floorId }: { floorId: string }) {
         </label>
       </div>
       <div>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Monthly rate
           <input
             className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow w-24 block"

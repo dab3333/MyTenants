@@ -65,27 +65,27 @@ export function AdmitTenantForm({
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <fieldset>
         <legend className="text-sm font-medium">Tenant</legend>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           <input type="radio" name="mode" checked={mode === "new"} onChange={() => setMode("new")} /> New tenant
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           <input type="radio" name="mode" checked={mode === "existing"} onChange={() => setMode("existing")} /> Existing prospect
         </label>
       </fieldset>
 
       {mode === "new" ? (
         <>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-zinc-700">
             First name
             <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-zinc-700">
             Last name
             <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
           </label>
         </>
       ) : (
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Prospect
           <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={prospectId} onChange={(e) => setProspectId(e.target.value)} required>
             {prospects.map((p) => (
@@ -97,7 +97,7 @@ export function AdmitTenantForm({
         </label>
       )}
 
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Room
         <select
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -118,7 +118,7 @@ export function AdmitTenantForm({
         </select>
       </label>
 
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Start date
         <input
           type="date"
@@ -135,7 +135,7 @@ export function AdmitTenantForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Billing day (day of month)
         <input
           type="number"
@@ -147,11 +147,11 @@ export function AdmitTenantForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Monthly rate
         <input type="number" min={0} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={monthlyRate} onChange={(e) => setMonthlyRate(e.target.value)} required />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Deposit amount
         <input type="number" min={0} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} required />
       </label>

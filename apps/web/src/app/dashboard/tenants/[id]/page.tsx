@@ -63,7 +63,7 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
         </div>
       )}
 
-      <h2 className="text-lg font-medium text-zinc-900 mt-6 mb-2">Tenancy History</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 mt-6 mb-2">Tenancy History</h2>
       <ul className="space-y-4">
         {tenant.tenancies.map((tenancy) => (
           <li key={tenancy.id} data-testid="tenancy-row">
@@ -71,7 +71,7 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
               {tenancy.room.floor.building.name} / {tenancy.room.floor.label} / {tenancy.room.name} —{" "}
               {tenancy.status}
             </div>
-            <h3 className="text-sm font-medium mt-2">Invoices</h3>
+            <h3 className="text-sm font-semibold text-zinc-900 mt-2">Invoices</h3>
             <ul className="space-y-1">
               {tenancy.invoices.map((invoice) => {
                 const totalPaid = invoice.payments.reduce((sum, p) => sum + Number(p.amountPaid), 0);

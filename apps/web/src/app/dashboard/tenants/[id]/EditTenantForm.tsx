@@ -61,8 +61,8 @@ export function EditTenantForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-4">
-      <h2 className="text-lg font-medium text-zinc-900">Edit Tenant</h2>
-      <label className="block text-sm">
+      <h2 className="text-lg font-semibold text-zinc-900">Edit Tenant</h2>
+      <label className="block text-sm font-medium text-zinc-700">
         First name
         <input
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -71,7 +71,7 @@ export function EditTenantForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Last name
         <input
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -80,7 +80,7 @@ export function EditTenantForm({
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Email
         <input
           type="email"
@@ -89,7 +89,7 @@ export function EditTenantForm({
           onChange={(e) => setEmailValue(e.target.value)}
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Phone
         <input
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -97,7 +97,7 @@ export function EditTenantForm({
           onChange={(e) => setPhoneValue(e.target.value)}
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Emergency contact
         <input
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"

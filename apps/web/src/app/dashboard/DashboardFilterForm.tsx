@@ -23,7 +23,7 @@ export function DashboardFilterForm({
 
   return (
     <form method="get" className="mb-6 flex flex-wrap items-end gap-2">
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Date range
         <select
           name="preset"
@@ -41,11 +41,11 @@ export function DashboardFilterForm({
 
       {selected === "custom" && (
         <>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-zinc-700">
             From
             <input type="date" name="from" defaultValue={from} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" required />
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-zinc-700">
             To
             <input type="date" name="to" defaultValue={to} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" required />
           </label>

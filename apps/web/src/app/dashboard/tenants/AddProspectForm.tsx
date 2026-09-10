@@ -40,7 +40,7 @@ export function AddProspectForm() {
   return (
     <form onSubmit={handleSubmit} className="flex gap-2 items-end mb-6">
       <div>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           First name
           <input
             className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -51,7 +51,7 @@ export function AddProspectForm() {
         </label>
       </div>
       <div>
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Last name
           <input
             className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"

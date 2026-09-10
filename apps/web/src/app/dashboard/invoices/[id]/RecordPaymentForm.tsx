@@ -43,7 +43,7 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Amount paid
         <input
           type="number"
@@ -55,7 +55,7 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
           required
         />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Method
         <select
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -69,7 +69,7 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
           ))}
         </select>
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Notes
         <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>

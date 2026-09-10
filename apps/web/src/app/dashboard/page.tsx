@@ -39,22 +39,22 @@ export default async function DashboardHomePage({
       <DashboardFilterForm preset={validPreset} from={from} to={to} />
 
       <section>
-        <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mb-2">Income Trend</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Income Trend</h2>
         <IncomeTrendChart data={incomeTrend} />
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mb-2">Tenant Count Over Time</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Tenant Count Over Time</h2>
         <TenantCountChart data={tenantCountTrend} />
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mb-2">Occupancy By Building</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Occupancy By Building</h2>
         <OccupancyByBuilding buildings={occupancy} />
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold text-zinc-900 tracking-tight mb-2">Overdue Payments</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Overdue Payments</h2>
         <OverdueSummary summary={overdue} />
       </section>
     </div>

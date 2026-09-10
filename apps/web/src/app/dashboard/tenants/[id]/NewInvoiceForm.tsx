@@ -44,19 +44,19 @@ export function NewInvoiceForm({ tenancyId }: { tenancyId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Period start
         <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} required />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Period end
         <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Due date
         <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Amount due
         <input type="number" min={0} step="0.01" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={amountDue} onChange={(e) => setAmountDue(e.target.value)} required />
       </label>

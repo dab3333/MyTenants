@@ -65,7 +65,7 @@ export function NewAnnouncementForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Scope
         <select
           className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
@@ -80,7 +80,7 @@ export function NewAnnouncementForm({
       </label>
 
       {scope === "BUILDING" && (
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Building
           <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={buildingId} onChange={(e) => setBuildingId(e.target.value)} required>
             {buildings.map((building) => (
@@ -93,7 +93,7 @@ export function NewAnnouncementForm({
       )}
 
       {scope === "ROOM" && (
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Room
           <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
             {rooms.map((room) => (
@@ -106,7 +106,7 @@ export function NewAnnouncementForm({
       )}
 
       {scope === "TENANT" && (
-        <label className="block text-sm">
+        <label className="block text-sm font-medium text-zinc-700">
           Tenant
           <select className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={tenantId} onChange={(e) => setTenantId(e.target.value)} required>
             {tenants.map((tenant) => (
@@ -118,11 +118,11 @@ export function NewAnnouncementForm({
         </label>
       )}
 
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Subject
         <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block w-full" value={subject} onChange={(e) => setSubject(e.target.value)} required />
       </label>
-      <label className="block text-sm">
+      <label className="block text-sm font-medium text-zinc-700">
         Body
         <textarea className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block w-full" value={body} onChange={(e) => setBody(e.target.value)} required />
       </label>
