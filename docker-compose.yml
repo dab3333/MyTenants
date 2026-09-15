@@ -17,6 +17,8 @@ services:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/mytenants
       AUTH_SECRET: ${AUTH_SECRET}
       TZ: UTC
+    ports:
+      - "3000:3000"
     depends_on:
       - postgres
 
