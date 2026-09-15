@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
-import { AddProspectForm } from "./AddProspectForm";
+import { TenantFilters } from "./TenantFilters";
+import { TenantRow } from "./TenantRow";
+import { TenantsHeader } from "./TenantsHeader";
 
 export default async function TenantsListPage({
   searchParams,
@@ -39,67 +40,98 @@ export default async function TenantsListPage({
           : {}),
       },
       orderBy: { createdAt: "desc" },
+      include: {
+        tenancies: {
+          where: { status: "ACTIVE" },
+          take: 1,
+          include: { room: { include: { floor: { include: { building: true } } } } },
+        },
+      },
     }),
     scoped.building.findMany({ orderBy: { name: "asc" } }),
     scoped.room.findMany({ orderBy: { name: "asc" }, include: { floor: { include: { building: true } } } }),
   ]);
 
+  const buildingOptions = buildings.map((building) => ({ id: building.id, label: building.name }));
+  const roomOptions = rooms.map((room) => ({
+    id: room.id,
+    label: `${room.floor.building.name} / ${room.floor.label} / ${room.name}`,
+  }));
+
+  const STATUS_BADGE: Record<string, string> = {
+    PROSPECT: "bg-amber-50 text-amber-700",
+    ACTIVE: "bg-green-50 text-green-700",
+    MOVED_OUT: "bg-zinc-100 text-zinc-500",
+  };
+  const STATUS_LABEL: Record<string, string> = {
+    PROSPECT: "Prospect",
+    ACTIVE: "Active",
+    MOVED_OUT: "Moved out",
+  };
+
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-6">Tenants</h1>
-      <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors inline-block" href="/dashboard/tenants/admit">
-        Admit Tenant
-      </Link>
-      <AddProspectForm />
-      <form className="mt-8 mb-4 flex flex-wrap gap-2 border-t border-zinc-200 pt-6" method="get">
-        <label className="block text-sm font-medium text-zinc-700">
-          Search
-          <input name="search" defaultValue={search ?? ""} placeholder="Search by name" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow" />
-        </label>
-        <label className="block text-sm font-medium text-zinc-700">
-          Status
-          <select name="status" defaultValue={status ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
-            <option value="">All statuses</option>
-            <option value="PROSPECT">Prospect</option>
-            <option value="ACTIVE">Active</option>
-            <option value="MOVED_OUT">Moved out</option>
-          </select>
-        </label>
-        <label className="block text-sm font-medium text-zinc-700">
-          Building
-          <select name="buildingId" defaultValue={buildingId ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
-            <option value="">All buildings</option>
-            {buildings.map((building) => (
-              <option key={building.id} value={building.id}>
-                {building.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block text-sm font-medium text-zinc-700">
-          Room
-          <select name="roomId" defaultValue={roomId ?? ""} className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow">
-            <option value="">All rooms</option>
-            {rooms.map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.floor.building.name} / {room.floor.label} / {room.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button type="submit" className="border border-zinc-300 rounded px-3 py-1 font-medium text-zinc-700 hover:bg-zinc-50 hover:border-clay-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 transition-colors">Filter</button>
-      </form>
-      <ul className="space-y-2">
-        {tenants.map((tenant) => (
-          <li key={tenant.id} data-testid="tenant-row">
-            <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors" href={`/dashboard/tenants/${tenant.id}`}>
-              {tenant.firstName} {tenant.lastName}
-            </Link>
-            <span className="text-zinc-500 text-sm"> — {tenant.status}</span>
-          </li>
-        ))}
-        {tenants.length === 0 && <li className="text-zinc-500">No tenants found.</li>}
-      </ul>
+      <TenantsHeader />
+
+      <TenantFilters
+        search={search ?? ""}
+        status={status ?? ""}
+        buildingId={buildingId ?? ""}
+        roomId={roomId ?? ""}
+        buildings={buildingOptions}
+        rooms={roomOptions}
+      />
+      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
+        <table className="w-full min-w-[48rem] text-left text-sm">
+          <thead>
+            <tr className="border-b border-zinc-200 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th scope="col" className="px-5 py-3 font-medium">
+                Name
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Status
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Room
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Age
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Gender
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Contact
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {tenants.map((tenant) => {
+              const room = tenant.tenancies[0]?.room;
+              return (
+                <TenantRow
+                  key={tenant.id}
+                  tenantId={tenant.id}
+                  name={`${tenant.firstName} ${tenant.lastName}`}
+                  statusBadgeClass={STATUS_BADGE[tenant.status]}
+                  statusLabel={STATUS_LABEL[tenant.status]}
+                  roomLabel={room ? `${room.floor.building.name} / ${room.floor.label} / ${room.name}` : "—"}
+                  age={tenant.age !== null ? String(tenant.age) : "—"}
+                  gender={tenant.gender ?? "—"}
+                  contact={tenant.phone ?? tenant.email ?? "—"}
+                />
+              );
+            })}
+            {tenants.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-5 py-10 text-center text-zinc-500">
+                  No tenants found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }

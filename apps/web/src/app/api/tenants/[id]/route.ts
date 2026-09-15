@@ -44,6 +44,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (typeof body.emergencyContact === "string") {
     data.emergencyContact = body.emergencyContact.trim() === "" ? null : body.emergencyContact.trim();
   }
+  if (body.age === null || body.age === "") {
+    data.age = null;
+  } else if (typeof body.age === "number") {
+    if (!Number.isInteger(body.age) || body.age < 0) {
+      return NextResponse.json({ error: "age must be a non-negative integer" }, { status: 400 });
+    }
+    data.age = body.age;
+  }
+  if (typeof body.gender === "string") data.gender = body.gender.trim() === "" ? null : body.gender.trim();
+  if (typeof body.address === "string") data.address = body.address.trim() === "" ? null : body.address.trim();
+  if (typeof body.occupation === "string") {
+    data.occupation = body.occupation.trim() === "" ? null : body.occupation.trim();
+  }
   // `status` is intentionally never read from the body — see Global Constraints.
 
   const tenant = await scoped.tenant.update({ where: { id }, data });

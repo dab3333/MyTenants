@@ -41,6 +41,10 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
         {tenant.firstName} {tenant.lastName}
       </h1>
       <p className="text-zinc-500 mb-4">{tenant.status}</p>
+      {tenant.age !== null && <p>Age: {tenant.age}</p>}
+      {tenant.gender && <p>Gender: {tenant.gender}</p>}
+      {tenant.occupation && <p>Occupation: {tenant.occupation}</p>}
+      {tenant.address && <p>Address: {tenant.address}</p>}
       {tenant.email && <p>Email: {tenant.email}</p>}
       {tenant.phone && <p>Phone: {tenant.phone}</p>}
       {tenant.emergencyContact && <p>Emergency contact: {tenant.emergencyContact}</p>}
@@ -53,6 +57,10 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           email={tenant.email}
           phone={tenant.phone}
           emergencyContact={tenant.emergencyContact}
+          age={tenant.age}
+          gender={tenant.gender}
+          address={tenant.address}
+          occupation={tenant.occupation}
         />
       </div>
 

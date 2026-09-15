@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PlusIcon } from "../icons";
 
-export function AddProspectForm() {
+const FIELD =
+  "block rounded border border-zinc-300 px-3 py-1.5 text-zinc-900 transition-shadow focus-visible:border-clay-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500";
+
+export function AddProspectForm({ onDone }: { onDone: () => void }) {
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -23,9 +27,8 @@ export function AddProspectForm() {
         body: JSON.stringify({ firstName, lastName }),
       });
       if (res.ok) {
-        setFirstName("");
-        setLastName("");
         router.refresh();
+        onDone();
       } else {
         const data = await res.json().catch(() => ({}));
         setError(data.error ?? "Failed to add prospect");
@@ -38,33 +41,41 @@ export function AddProspectForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 items-end mb-6">
-      <div>
-        <label className="block text-sm font-medium text-zinc-700">
-          First name
-          <input
-            className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-        </label>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-zinc-700">
-          Last name
-          <input
-            className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </label>
-      </div>
-      {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
-        {isSubmitting ? "Adding..." : "Add Prospect"}
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
+      <label className="text-sm font-medium text-zinc-700">
+        <span className="mb-1 block">First name</span>
+        <input
+          className={FIELD}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          autoFocus
+          required
+        />
+      </label>
+      <label className="text-sm font-medium text-zinc-700">
+        <span className="mb-1 block">Last name</span>
+        <input className={FIELD} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+      </label>
+      <button
+        type="submit"
+        className="inline-flex items-center gap-2 rounded bg-clay-600 px-4 py-1.5 font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
+        disabled={isSubmitting}
+      >
+        <PlusIcon />
+        {isSubmitting ? "Adding…" : "Add Prospect"}
       </button>
+      <button
+        type="button"
+        onClick={onDone}
+        className="px-2 py-1.5 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-700"
+      >
+        Cancel
+      </button>
+      {error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

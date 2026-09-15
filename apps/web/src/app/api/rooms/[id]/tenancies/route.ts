@@ -43,6 +43,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   ) {
     return NextResponse.json({ error: "billingDay must be an integer between 1 and 31" }, { status: 400 });
   }
+  if (
+    !isExisting &&
+    tenantInput.age !== undefined &&
+    tenantInput.age !== null &&
+    tenantInput.age !== "" &&
+    (typeof tenantInput.age !== "number" || !Number.isInteger(tenantInput.age) || tenantInput.age < 0)
+  ) {
+    return NextResponse.json({ error: "tenant.age must be a non-negative integer" }, { status: 400 });
+  }
 
   const scoped = createScopedClient(session.organizationId);
 
@@ -75,6 +84,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             emergencyContact:
               typeof tenantInput.emergencyContact === "string" && tenantInput.emergencyContact.trim() !== ""
                 ? tenantInput.emergencyContact.trim()
+                : null,
+            age: typeof tenantInput.age === "number" ? tenantInput.age : null,
+            gender:
+              typeof tenantInput.gender === "string" && tenantInput.gender.trim() !== ""
+                ? tenantInput.gender.trim()
+                : null,
+            address:
+              typeof tenantInput.address === "string" && tenantInput.address.trim() !== ""
+                ? tenantInput.address.trim()
+                : null,
+            occupation:
+              typeof tenantInput.occupation === "string" && tenantInput.occupation.trim() !== ""
+                ? tenantInput.occupation.trim()
                 : null,
             status: "ACTIVE",
           },

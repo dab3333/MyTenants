@@ -53,18 +53,17 @@ test("edit a tenant's profile and filter the tenant list by building and room", 
   await expect(page.getByRole("heading", { name: "Updated Tenant" })).toBeVisible();
   await expect(page.getByText("Email: updated@example.com")).toBeVisible();
 
-  // The tenants list, filtered by building and by room, should still find this tenant.
+  // The tenants list filters live as selections change, with no Filter button to click.
   await page.goto("/dashboard/tenants");
   await page.getByLabel("Building").selectOption({ label: "Profile Hall" });
-  await page.getByRole("button", { name: "Filter" }).click();
+  await expect(page).toHaveURL(/buildingId=/);
   await expect(page.getByTestId("tenant-row")).toContainText("Updated Tenant");
 
   await page.getByLabel("Room").selectOption({ label: "Profile Hall / 1F / 101" });
-  await page.getByRole("button", { name: "Filter" }).click();
+  await expect(page).toHaveURL(/roomId=/);
   await expect(page.getByTestId("tenant-row")).toContainText("Updated Tenant");
 
   // Filtering by the other (empty) room should find nobody.
   await page.getByLabel("Room").selectOption({ label: "Profile Hall / 1F / 102" });
-  await page.getByRole("button", { name: "Filter" }).click();
   await expect(page.getByText("No tenants found.")).toBeVisible();
 });
