@@ -33,30 +33,42 @@ export default async function DashboardHomePage({
     getOverdueSummary(scoped),
   ]);
 
+  const CARD = "rounded-lg border border-zinc-200 bg-white p-5 shadow-sm";
+
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Dashboard</h1>
-      <DashboardFilterForm preset={validPreset} from={from} to={to} />
+    <div className="p-6 space-y-8 max-w-6xl">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Dashboard</h1>
+          <p className="mt-1 text-sm text-zinc-500">Income, occupancy, and payment health across your buildings.</p>
+        </div>
 
-      <section>
-        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Income Trend</h2>
-        <IncomeTrendChart data={incomeTrend} />
-      </section>
+        <DashboardFilterForm preset={validPreset} from={from} to={to} />
+      </div>
 
-      <section>
-        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Tenant Count Over Time</h2>
-        <TenantCountChart data={tenantCountTrend} />
-      </section>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section className={CARD}>
+          <h2 className="text-lg font-semibold text-zinc-900 mb-3">Overdue Payments</h2>
+          <OverdueSummary summary={overdue} />
+        </section>
 
-      <section>
-        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Occupancy By Building</h2>
-        <OccupancyByBuilding buildings={occupancy} />
-      </section>
+        <section className={CARD}>
+          <h2 className="text-lg font-semibold text-zinc-900 mb-3">Occupancy By Building</h2>
+          <OccupancyByBuilding buildings={occupancy} />
+        </section>
+      </div>
 
-      <section>
-        <h2 className="text-lg font-semibold text-zinc-900 mb-2">Overdue Payments</h2>
-        <OverdueSummary summary={overdue} />
-      </section>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section className={CARD}>
+          <h2 className="text-lg font-semibold text-zinc-900 mb-3">Income Trend</h2>
+          <IncomeTrendChart data={incomeTrend} />
+        </section>
+
+        <section className={CARD}>
+          <h2 className="text-lg font-semibold text-zinc-900 mb-3">Tenant Count Over Time</h2>
+          <TenantCountChart data={tenantCountTrend} />
+        </section>
+      </div>
     </div>
   );
 }
