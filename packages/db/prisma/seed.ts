@@ -96,8 +96,16 @@ async function main() {
   const makeFloor = (buildingId: string, label: string) => prisma.floor.create({ data: { organizationId: orgId, buildingId, label } });
   const makeRoom = (floorId: string, name: string, capacity: number, monthlyRate: number) =>
     prisma.room.create({ data: { organizationId: orgId, floorId, name, capacity, monthlyRate } });
-  const makeTenant = (firstName: string, lastName: string, email: string, phone: string) =>
-    prisma.tenant.create({ data: { organizationId: orgId, firstName, lastName, email, phone, status: "ACTIVE" } });
+  const makeTenant = (
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    profile: { age?: number; gender?: string; address?: string; occupation?: string } = {}
+  ) =>
+    prisma.tenant.create({
+      data: { organizationId: orgId, firstName, lastName, email, phone, status: "ACTIVE", ...profile },
+    });
   const makeTenancy = (tenantId: string, roomId: string, monthlyRate: number, startOffset: number, endOffset: number | null) =>
     prisma.tenancy.create({
       data: {
@@ -121,11 +129,36 @@ async function main() {
   const sr102 = await makeRoom(sunrise1F.id, "102", 1, 3000);
   const sr201 = await makeRoom(sunrise2F.id, "201", 2, 3500);
 
-  const tAna = await makeTenant("Ana", "Reyes", "ana.reyes@example.com", "0917-100-0001");
-  const tMiguelS = await makeTenant("Miguel", "Santos", "miguel.santos@example.com", "0917-100-0002");
-  const tLiza = await makeTenant("Liza", "Cruz", "liza.cruz@example.com", "0917-100-0003");
-  const tPaolo = await makeTenant("Paolo", "Garcia", "paolo.garcia@example.com", "0917-100-0004");
-  const tCarmela = await makeTenant("Carmela", "Lim", "carmela.lim@example.com", "0917-100-0005");
+  const tAna = await makeTenant("Ana", "Reyes", "ana.reyes@example.com", "0917-100-0001", {
+    age: 28,
+    gender: "Female",
+    occupation: "Registered Nurse",
+    address: "45 Mabini St, Sampaloc, Manila",
+  });
+  const tMiguelS = await makeTenant("Miguel", "Santos", "miguel.santos@example.com", "0917-100-0002", {
+    age: 31,
+    gender: "Male",
+    occupation: "Software Engineer",
+    address: "12 Kalayaan Ave, Diliman, Quezon City",
+  });
+  const tLiza = await makeTenant("Liza", "Cruz", "liza.cruz@example.com", "0917-100-0003", {
+    age: 24,
+    gender: "Female",
+    occupation: "Call Center Agent",
+    address: "78 Aurora Blvd, Cubao, Quezon City",
+  });
+  const tPaolo = await makeTenant("Paolo", "Garcia", "paolo.garcia@example.com", "0917-100-0004", {
+    age: 35,
+    gender: "Male",
+    occupation: "Sales Supervisor",
+    address: "23 P. Burgos St, Poblacion, Makati",
+  });
+  const tCarmela = await makeTenant("Carmela", "Lim", "carmela.lim@example.com", "0917-100-0005", {
+    age: 27,
+    gender: "Female",
+    occupation: "Graphic Designer",
+    address: "9 Del Pilar St, Ermita, Manila",
+  });
 
   const tenAna = await makeTenancy(tAna.id, sr101.id, 3500, 5, null);
   await createInvoicesForTenancy({ tenancyId: tenAna.id, monthlyRate: 3500, startOffset: 5, endOffset: 0 });
@@ -145,8 +178,18 @@ async function main() {
   const mc101 = await makeRoom(maple1F.id, "101", 2, 3200);
   const mc102 = await makeRoom(maple1F.id, "102", 2, 3200);
 
-  const tJosef = await makeTenant("Josef", "Tan", "josef.tan@example.com", "0917-100-0006");
-  const tNadia = await makeTenant("Nadia", "Flores", "nadia.flores@example.com", "0917-100-0007");
+  const tJosef = await makeTenant("Josef", "Tan", "josef.tan@example.com", "0917-100-0006", {
+    age: 40,
+    gender: "Male",
+    occupation: "Accountant",
+    address: "56 Shaw Blvd, Mandaluyong",
+  });
+  const tNadia = await makeTenant("Nadia", "Flores", "nadia.flores@example.com", "0917-100-0007", {
+    age: 22,
+    gender: "Female",
+    occupation: "College Student",
+    address: "31 Taft Ave, Malate, Manila",
+  });
   const tenJosef = await makeTenancy(tJosef.id, mc101.id, 3200, 5, null);
   await createInvoicesForTenancy({ tenancyId: tenJosef.id, monthlyRate: 3200, startOffset: 5, endOffset: 0 });
   const tenNadia = await makeTenancy(tNadia.id, mc102.id, 3200, 1, null);
@@ -158,7 +201,12 @@ async function main() {
   const rh101 = await makeRoom(riverside1F.id, "101", 2, 3000);
   await makeRoom(riverside1F.id, "102", 2, 3000);
 
-  const tMiguelC = await makeTenant("Miguel", "Cruz", "miguel.cruz@example.com", "0917-100-0008");
+  const tMiguelC = await makeTenant("Miguel", "Cruz", "miguel.cruz@example.com", "0917-100-0008", {
+    age: 33,
+    gender: "Male",
+    occupation: "Delivery Rider",
+    address: "14 EDSA, Guadalupe, Makati",
+  });
   const tenMiguelC = await makeTenancy(tMiguelC.id, rh101.id, 3000, 7, 1);
   await createInvoicesForTenancy({ tenancyId: tenMiguelC.id, monthlyRate: 3000, startOffset: 7, endOffset: 1 });
 
@@ -169,9 +217,24 @@ async function main() {
   const bw101 = await makeRoom(birchwood1F.id, "101", 2, 4000);
   const bw201 = await makeRoom(birchwood2F.id, "201", 2, 4000);
 
-  const tRamon = await makeTenant("Ramon", "Dela Cruz", "ramon.delacruz@example.com", "0917-100-0009");
-  const tBea = await makeTenant("Bea", "Villanueva", "bea.villanueva@example.com", "0917-100-0010");
-  const tKen = await makeTenant("Ken", "Ocampo", "ken.ocampo@example.com", "0917-100-0011");
+  const tRamon = await makeTenant("Ramon", "Dela Cruz", "ramon.delacruz@example.com", "0917-100-0009", {
+    age: 45,
+    gender: "Male",
+    occupation: "Construction Foreman",
+    address: "5 Rizal St, Bacoor, Cavite",
+  });
+  const tBea = await makeTenant("Bea", "Villanueva", "bea.villanueva@example.com", "0917-100-0010", {
+    age: 26,
+    gender: "Female",
+    occupation: "Marketing Associate",
+    address: "67 Ortigas Ave, San Juan",
+  });
+  const tKen = await makeTenant("Ken", "Ocampo", "ken.ocampo@example.com", "0917-100-0011", {
+    age: 30,
+    gender: "Male",
+    occupation: "Barista",
+    address: "18 Katipunan Ave, Loyola Heights, Quezon City",
+  });
   const tenRamon = await makeTenancy(tRamon.id, bw101.id, 4000, 5, null);
   await createInvoicesForTenancy({ tenancyId: tenRamon.id, monthlyRate: 4000, startOffset: 5, endOffset: 0 });
   const tenBea = await makeTenancy(tBea.id, bw101.id, 4000, 3, null);

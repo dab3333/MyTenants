@@ -52,13 +52,19 @@ export default async function TenantsListPage({
       },
     }),
     scoped.building.findMany({ orderBy: { name: "asc" } }),
-    scoped.room.findMany({ orderBy: { name: "asc" }, include: { floor: { include: { building: true } } } }),
+    scoped.room.findMany({
+      where: buildingId ? { floor: { buildingId } } : {},
+      orderBy: { name: "asc" },
+      include: { floor: { include: { building: true } } },
+    }),
   ]);
 
   const buildingOptions = buildings.map((building) => ({ id: building.id, label: building.name }));
   const roomOptions = rooms.map((room) => ({
     id: room.id,
-    label: `${room.floor.building.name} / ${room.floor.label} / ${room.name}`,
+    label: buildingId
+      ? `${room.floor.label} / ${room.name}`
+      : `${room.floor.building.name} / ${room.floor.label} / ${room.name}`,
   }));
 
   const STATUS_BADGE: Record<string, string> = {

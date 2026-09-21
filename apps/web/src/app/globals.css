@@ -12,6 +12,33 @@
   outline-offset: 2px;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.zinc.300") transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: theme("colors.zinc.300");
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: theme("colors.clay.400");
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .modal-panel {
     opacity: 0;

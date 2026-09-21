@@ -73,9 +73,17 @@ export async function POST(request: Request) {
       lastName: body.lastName.trim(),
       email: typeof body.email === "string" && body.email.trim() !== "" ? body.email.trim() : null,
       phone: typeof body.phone === "string" && body.phone.trim() !== "" ? body.phone.trim() : null,
-      emergencyContact:
-        typeof body.emergencyContact === "string" && body.emergencyContact.trim() !== ""
-          ? body.emergencyContact.trim()
+      emergencyContactName:
+        typeof body.emergencyContactName === "string" && body.emergencyContactName.trim() !== ""
+          ? body.emergencyContactName.trim()
+          : null,
+      emergencyContactRelationship:
+        typeof body.emergencyContactRelationship === "string" && body.emergencyContactRelationship.trim() !== ""
+          ? body.emergencyContactRelationship.trim()
+          : null,
+      emergencyContactPhone:
+        typeof body.emergencyContactPhone === "string" && body.emergencyContactPhone.trim() !== ""
+          ? body.emergencyContactPhone.trim()
           : null,
       status: "PROSPECT",
     },

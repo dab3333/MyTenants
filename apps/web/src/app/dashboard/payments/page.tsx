@@ -78,9 +78,10 @@ export default async function PaymentsPage({
 
   return (
     <main className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold text-zinc-900 tracking-tight">Payments</h1>
-
-      <PaymentFilters status={status ?? ""} from={from ?? ""} to={to ?? ""} />
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Payments</h1>
+        <PaymentFilters status={status ?? ""} from={from ?? ""} to={to ?? ""} />
+      </div>
 
       <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
         <table className="w-full min-w-[42rem] text-left text-sm">

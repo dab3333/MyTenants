@@ -30,7 +30,9 @@ export function TenantProfileCard({
   photoUrl,
   email,
   phone,
-  emergencyContact,
+  emergencyContactName,
+  emergencyContactRelationship,
+  emergencyContactPhone,
   age,
   gender,
   address,
@@ -45,7 +47,9 @@ export function TenantProfileCard({
   photoUrl: string | null;
   email: string | null;
   phone: string | null;
-  emergencyContact: string | null;
+  emergencyContactName: string | null;
+  emergencyContactRelationship: string | null;
+  emergencyContactPhone: string | null;
   age: number | null;
   gender: string | null;
   address: string | null;
@@ -104,8 +108,10 @@ export function TenantProfileCard({
         <Field label="Email" value={email} />
         <Field label="Phone" value={phone} />
       </div>
-      <div className="mt-4 border-t border-zinc-100 pt-4">
-        <Field label="Emergency contact" value={emergencyContact} />
+      <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 border-t border-zinc-100 pt-4 sm:grid-cols-3">
+        <Field label="Emergency contact name" value={emergencyContactName} />
+        <Field label="Relationship" value={emergencyContactRelationship} />
+        <Field label="Emergency contact phone" value={emergencyContactPhone} />
       </div>
 
       {activeTenancyId && (
@@ -114,7 +120,7 @@ export function TenantProfileCard({
         </div>
       )}
 
-      <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Edit Tenant">
+      <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Edit Tenant" size="xl">
         <EditTenantForm
           tenantId={tenantId}
           firstName={firstName}
@@ -122,7 +128,9 @@ export function TenantProfileCard({
           photoUrl={photoUrl}
           email={email}
           phone={phone}
-          emergencyContact={emergencyContact}
+          emergencyContactName={emergencyContactName}
+          emergencyContactRelationship={emergencyContactRelationship}
+          emergencyContactPhone={emergencyContactPhone}
           age={age}
           gender={gender}
           address={address}

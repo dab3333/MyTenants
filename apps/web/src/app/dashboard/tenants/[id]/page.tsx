@@ -73,7 +73,9 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           photoUrl={tenant.photoUrl}
           email={tenant.email}
           phone={tenant.phone}
-          emergencyContact={tenant.emergencyContact}
+          emergencyContactName={tenant.emergencyContactName}
+          emergencyContactRelationship={tenant.emergencyContactRelationship}
+          emergencyContactPhone={tenant.emergencyContactPhone}
           age={tenant.age}
           gender={tenant.gender}
           address={tenant.address}

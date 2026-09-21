@@ -39,7 +39,9 @@ export function AdmitTenantForm({
   const [occupation, setOccupation] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [emergencyContact, setEmergencyContact] = useState("");
+  const [emergencyContactName, setEmergencyContactName] = useState("");
+  const [emergencyContactRelationship, setEmergencyContactRelationship] = useState("");
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
   const [startDate, setStartDate] = useState("");
   const [billingDay, setBillingDay] = useState("1");
   const [monthlyRate, setMonthlyRate] = useState(initialRoom?.monthlyRate ?? "0");
@@ -67,7 +69,10 @@ export function AdmitTenantForm({
               occupation: occupation.trim() === "" ? null : occupation,
               email: email.trim() === "" ? null : email,
               phone: phone.trim() === "" ? null : phone,
-              emergencyContact: emergencyContact.trim() === "" ? null : emergencyContact,
+              emergencyContactName: emergencyContactName.trim() === "" ? null : emergencyContactName,
+              emergencyContactRelationship:
+                emergencyContactRelationship.trim() === "" ? null : emergencyContactRelationship,
+              emergencyContactPhone: emergencyContactPhone.trim() === "" ? null : emergencyContactPhone,
             };
 
       const res = await fetch(`/api/rooms/${roomId}/tenancies`, {
@@ -204,15 +209,36 @@ export function AdmitTenantForm({
                     <input className={FIELD} value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </label>
                 </div>
-                <label className="block text-sm font-medium text-zinc-700">
-                  <span className="mb-1 block">Emergency contact</span>
-                  <input
-                    className={FIELD}
-                    placeholder="Name, relationship, phone number"
-                    value={emergencyContact}
-                    onChange={(e) => setEmergencyContact(e.target.value)}
-                  />
-                </label>
+                <div>
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Emergency Contact</p>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <label className="text-sm font-medium text-zinc-700">
+                      <span className="mb-1 block">Name</span>
+                      <input
+                        className={FIELD}
+                        value={emergencyContactName}
+                        onChange={(e) => setEmergencyContactName(e.target.value)}
+                      />
+                    </label>
+                    <label className="text-sm font-medium text-zinc-700">
+                      <span className="mb-1 block">Relationship</span>
+                      <input
+                        className={FIELD}
+                        placeholder="e.g. Parent, Sibling"
+                        value={emergencyContactRelationship}
+                        onChange={(e) => setEmergencyContactRelationship(e.target.value)}
+                      />
+                    </label>
+                    <label className="text-sm font-medium text-zinc-700">
+                      <span className="mb-1 block">Phone number</span>
+                      <input
+                        className={FIELD}
+                        value={emergencyContactPhone}
+                        onChange={(e) => setEmergencyContactPhone(e.target.value)}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </>

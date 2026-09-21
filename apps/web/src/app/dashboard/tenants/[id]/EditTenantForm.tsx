@@ -15,7 +15,9 @@ export function EditTenantForm({
   photoUrl,
   email,
   phone,
-  emergencyContact,
+  emergencyContactName,
+  emergencyContactRelationship,
+  emergencyContactPhone,
   age,
   gender,
   address,
@@ -27,7 +29,9 @@ export function EditTenantForm({
   photoUrl: string | null;
   email: string | null;
   phone: string | null;
-  emergencyContact: string | null;
+  emergencyContactName: string | null;
+  emergencyContactRelationship: string | null;
+  emergencyContactPhone: string | null;
   age: number | null;
   gender: string | null;
   address: string | null;
@@ -40,7 +44,11 @@ export function EditTenantForm({
   const [photoChanged, setPhotoChanged] = useState(false);
   const [emailValue, setEmailValue] = useState(email ?? "");
   const [phoneValue, setPhoneValue] = useState(phone ?? "");
-  const [emergencyContactValue, setEmergencyContactValue] = useState(emergencyContact ?? "");
+  const [emergencyContactNameValue, setEmergencyContactNameValue] = useState(emergencyContactName ?? "");
+  const [emergencyContactRelationshipValue, setEmergencyContactRelationshipValue] = useState(
+    emergencyContactRelationship ?? ""
+  );
+  const [emergencyContactPhoneValue, setEmergencyContactPhoneValue] = useState(emergencyContactPhone ?? "");
   const [ageValue, setAgeValue] = useState(age !== null ? String(age) : "");
   const [genderValue, setGenderValue] = useState(gender ?? "");
   const [addressValue, setAddressValue] = useState(address ?? "");
@@ -66,7 +74,9 @@ export function EditTenantForm({
           photo: photoChanged ? photoValue : undefined,
           email: emailValue,
           phone: phoneValue,
-          emergencyContact: emergencyContactValue,
+          emergencyContactName: emergencyContactNameValue,
+          emergencyContactRelationship: emergencyContactRelationshipValue,
+          emergencyContactPhone: emergencyContactPhoneValue,
           age: ageValue.trim() === "" ? null : Number(ageValue),
           gender: genderValue,
           address: addressValue,
@@ -160,15 +170,36 @@ export function EditTenantForm({
           </label>
         </div>
 
-        <label className="block text-sm font-medium text-zinc-700">
-          <span className="mb-1 block">Emergency contact</span>
-          <input
-            className={FIELD}
-            placeholder="Name, relationship, phone number"
-            value={emergencyContactValue}
-            onChange={(e) => setEmergencyContactValue(e.target.value)}
-          />
-        </label>
+        <div>
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Emergency Contact</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <label className="text-sm font-medium text-zinc-700">
+              <span className="mb-1 block">Name</span>
+              <input
+                className={FIELD}
+                value={emergencyContactNameValue}
+                onChange={(e) => setEmergencyContactNameValue(e.target.value)}
+              />
+            </label>
+            <label className="text-sm font-medium text-zinc-700">
+              <span className="mb-1 block">Relationship</span>
+              <input
+                className={FIELD}
+                placeholder="e.g. Parent, Sibling"
+                value={emergencyContactRelationshipValue}
+                onChange={(e) => setEmergencyContactRelationshipValue(e.target.value)}
+              />
+            </label>
+            <label className="text-sm font-medium text-zinc-700">
+              <span className="mb-1 block">Phone number</span>
+              <input
+                className={FIELD}
+                value={emergencyContactPhoneValue}
+                onChange={(e) => setEmergencyContactPhoneValue(e.target.value)}
+              />
+            </label>
+          </div>
+        </div>
 
         {error && (
           <p role="alert" className="text-sm text-red-600">

@@ -3,16 +3,24 @@
 import { useEffect, useRef } from "react";
 import { CloseIcon } from "./icons";
 
+const SIZE_CLASSES: Record<"md" | "lg" | "xl", string> = {
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-2xl",
+};
+
 export function Modal({
   open,
   onClose,
   title,
   children,
+  size = "md",
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  size?: "md" | "lg" | "xl";
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -33,7 +41,7 @@ export function Modal({
         // means it hit the backdrop area — treat it as a request to close.
         if (e.target === ref.current) onClose();
       }}
-      className="modal-panel w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6 shadow-lg backdrop:bg-zinc-900/40"
+      className={`modal-panel w-full ${SIZE_CLASSES[size]} rounded-lg border border-zinc-200 bg-white p-6 shadow-lg backdrop:bg-zinc-900/40`}
     >
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>

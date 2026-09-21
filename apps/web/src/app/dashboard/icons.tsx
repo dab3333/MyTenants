@@ -1,10 +1,23 @@
 export function BuildingMark() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M2 21V9L12 3L22 9V21H2Z" fill="currentColor" />
-      <rect x="9.5" y="14" width="2.2" height="2.2" fill="white" />
-      <rect x="12.8" y="14" width="2.2" height="2.2" fill="white" />
+      <path d="M3 21V10.5L12 3L21 10.5V21H3Z" fill="currentColor" />
+      <rect x="10" y="15" width="4" height="6" rx="1" fill="white" />
     </svg>
+  );
+}
+
+export function BuildingBadge({ size = 34 }: { size?: number }) {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-center rounded-[22%] bg-clay-600"
+      style={{ width: size, height: size }}
+    >
+      <svg width={size * 0.58} height={size * 0.58} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 21V10.5L12 3L21 10.5V21H3Z" fill="white" />
+        <rect x="10" y="15" width="4" height="6" rx="1" className="fill-clay-600" />
+      </svg>
+    </div>
   );
 }
 
@@ -106,6 +119,24 @@ export function UserIcon({ className }: { className?: string }) {
         strokeWidth="1.8"
         strokeLinecap="round"
       />
+    </svg>
+  );
+}
+
+export function CalendarIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M3 9H21" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M8 3V6M16 3V6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

@@ -95,12 +95,15 @@ model Tenant {
   lastName         String
   email            String?
   phone            String?
-  emergencyContact String?
   age              Int?
   gender           String?
   address          String?
   occupation       String?
   photoUrl         String?
+
+  emergencyContactName         String?
+  emergencyContactRelationship String?
+  emergencyContactPhone        String?
   status           TenantStatus @default(PROSPECT)
   createdAt        DateTime     @default(now())
 

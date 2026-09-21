@@ -53,8 +53,10 @@ test("edit a tenant's profile and filter the tenant list by building and room", 
   await page.getByLabel("First name").fill("Updated");
   await page.getByLabel("Last name").fill("Tenant");
   await page.getByLabel("Email").fill("updated@example.com");
-  await page.getByLabel("Phone").fill("555-1234");
-  await page.getByLabel("Emergency contact").fill("Jane Doe");
+  await page.getByLabel("Phone", { exact: true }).fill("555-1234");
+  await page.getByLabel("Name", { exact: true }).fill("Jane Doe");
+  await page.getByLabel("Relationship").fill("Sister");
+  await page.getByLabel("Phone number").fill("555-9876");
   await page.getByRole("button", { name: "Save Changes" }).click();
   await expect(page.getByText("Tenant updated.")).toBeVisible();
   await expect(page.getByLabel("Email")).toHaveValue("updated@example.com");
@@ -67,11 +69,11 @@ test("edit a tenant's profile and filter the tenant list by building and room", 
   await expect(page).toHaveURL(/buildingId=/);
   await expect(page.getByTestId("tenant-row")).toContainText("Updated Tenant");
 
-  await page.getByLabel("Room").selectOption({ label: "Profile Hall / 1F / 101" });
+  await page.getByLabel("Room").selectOption({ label: "1F / 101" });
   await expect(page).toHaveURL(/roomId=/);
   await expect(page.getByTestId("tenant-row")).toContainText("Updated Tenant");
 
   // Filtering by the other (empty) room should find nobody.
-  await page.getByLabel("Room").selectOption({ label: "Profile Hall / 1F / 102" });
+  await page.getByLabel("Room").selectOption({ label: "1F / 102" });
   await expect(page.getByText("No tenants found.")).toBeVisible();
 });

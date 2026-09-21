@@ -4,10 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDownIcon, SearchIcon } from "../icons";
 
-const FIELD =
-  "block w-full rounded border border-zinc-300 px-3 py-1.5 text-zinc-900 transition-shadow focus-visible:border-clay-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500";
-
 type Option = { id: string; label: string };
+
+const SEGMENT_SELECT =
+  "appearance-none cursor-pointer border-none bg-transparent py-3.5 pl-5 pr-8 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay-500";
+
+function segmentTextClass(isSet: boolean): string {
+  return isSet
+    ? "font-semibold text-zinc-900"
+    : "font-medium text-zinc-700 transition-colors hover:text-clay-700";
+}
 
 export function TenantFilters({
   search,
@@ -50,74 +56,82 @@ export function TenantFilters({
   }
 
   return (
-    <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-wrap items-end gap-4">
-        <label className="text-sm font-medium text-zinc-700">
-          <span className="mb-1 block">Search</span>
-          <div className="relative">
-            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400">
-              <SearchIcon />
-            </span>
-            <input
-              value={searchValue}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search by name"
-              className={`${FIELD} pl-9`}
-            />
-          </div>
+    <div className="mb-6 flex flex-wrap items-stretch overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <label className="flex flex-grow items-center gap-2.5 px-5 py-3.5">
+        <span className="sr-only">Search</span>
+        <span className="text-zinc-400">
+          <SearchIcon />
+        </span>
+        <input
+          value={searchValue}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search tenants by name"
+          className="w-full min-w-0 border-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none"
+        />
+      </label>
+
+      <div className="my-2.5 hidden w-px shrink-0 bg-zinc-200 sm:block" />
+
+      <div className="relative">
+        <label className="sr-only" htmlFor="tenant-filter-status">
+          Status
         </label>
-        <label className="text-sm font-medium text-zinc-700">
-          <span className="mb-1 block">Status</span>
-          <div className="relative">
-            <select
-              value={status}
-              onChange={(e) => navigate({ status: e.target.value })}
-              className={`${FIELD} appearance-none pr-8`}
-            >
-              <option value="">All statuses</option>
-              <option value="PROSPECT">Prospect</option>
-              <option value="ACTIVE">Active</option>
-              <option value="MOVED_OUT">Moved out</option>
-            </select>
-            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          </div>
+        <select
+          id="tenant-filter-status"
+          value={status}
+          onChange={(e) => navigate({ status: e.target.value })}
+          className={`${SEGMENT_SELECT} ${segmentTextClass(status !== "")}`}
+        >
+          <option value="">Status</option>
+          <option value="PROSPECT">Prospect</option>
+          <option value="ACTIVE">Active</option>
+          <option value="MOVED_OUT">Moved out</option>
+        </select>
+        <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-400" />
+      </div>
+
+      <div className="my-2.5 hidden w-px shrink-0 bg-zinc-200 sm:block" />
+
+      <div className="relative">
+        <label className="sr-only" htmlFor="tenant-filter-building">
+          Building
         </label>
-        <label className="text-sm font-medium text-zinc-700">
-          <span className="mb-1 block">Building</span>
-          <div className="relative">
-            <select
-              value={buildingId}
-              onChange={(e) => navigate({ buildingId: e.target.value, roomId: "" })}
-              className={`${FIELD} appearance-none pr-8`}
-            >
-              <option value="">All buildings</option>
-              {buildings.map((building) => (
-                <option key={building.id} value={building.id}>
-                  {building.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          </div>
+        <select
+          id="tenant-filter-building"
+          value={buildingId}
+          onChange={(e) => navigate({ buildingId: e.target.value, roomId: "" })}
+          className={`${SEGMENT_SELECT} ${segmentTextClass(buildingId !== "")}`}
+        >
+          <option value="">Building</option>
+          {buildings.map((building) => (
+            <option key={building.id} value={building.id}>
+              {building.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-400" />
+      </div>
+
+      <div className="my-2.5 hidden w-px shrink-0 bg-zinc-200 sm:block" />
+
+      <div className="relative">
+        <label className="sr-only" htmlFor="tenant-filter-room">
+          Room
         </label>
-        <label className="text-sm font-medium text-zinc-700">
-          <span className="mb-1 block">Room</span>
-          <div className="relative">
-            <select
-              value={roomId}
-              onChange={(e) => navigate({ roomId: e.target.value })}
-              className={`${FIELD} appearance-none pr-8`}
-            >
-              <option value="">All rooms</option>
-              {rooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  {room.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          </div>
-        </label>
+        <select
+          id="tenant-filter-room"
+          value={roomId}
+          onChange={(e) => navigate({ roomId: e.target.value })}
+          className={`${SEGMENT_SELECT} ${segmentTextClass(roomId !== "")}`}
+        >
+          <option value="">Room</option>
+          {rooms.map((room) => (
+            <option key={room.id} value={room.id}>
+              {room.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-400" />
       </div>
     </div>
   );

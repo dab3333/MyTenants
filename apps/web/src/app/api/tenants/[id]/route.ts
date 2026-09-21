@@ -42,8 +42,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (typeof body.lastName === "string" && body.lastName.trim() !== "") data.lastName = body.lastName.trim();
   if (typeof body.email === "string") data.email = body.email.trim() === "" ? null : body.email.trim();
   if (typeof body.phone === "string") data.phone = body.phone.trim() === "" ? null : body.phone.trim();
-  if (typeof body.emergencyContact === "string") {
-    data.emergencyContact = body.emergencyContact.trim() === "" ? null : body.emergencyContact.trim();
+  if (typeof body.emergencyContactName === "string") {
+    data.emergencyContactName = body.emergencyContactName.trim() === "" ? null : body.emergencyContactName.trim();
+  }
+  if (typeof body.emergencyContactRelationship === "string") {
+    data.emergencyContactRelationship =
+      body.emergencyContactRelationship.trim() === "" ? null : body.emergencyContactRelationship.trim();
+  }
+  if (typeof body.emergencyContactPhone === "string") {
+    data.emergencyContactPhone = body.emergencyContactPhone.trim() === "" ? null : body.emergencyContactPhone.trim();
   }
   if (body.age === null || body.age === "") {
     data.age = null;

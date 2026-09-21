@@ -18,9 +18,8 @@ export default function Icon() {
         }}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M2 21V9L12 3L22 9V21H2Z" fill="white" />
-          <rect x="9.5" y="14" width="2.2" height="2.2" fill="#9C4526" />
-          <rect x="12.8" y="14" width="2.2" height="2.2" fill="#9C4526" />
+          <path d="M3 21V10.5L12 3L21 10.5V21H3Z" fill="white" />
+          <rect x="10" y="15" width="4" height="6" rx="1" fill="#9C4526" />
         </svg>
       </div>
     ),

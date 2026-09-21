@@ -85,7 +85,8 @@ test("dashboard shows income, tenant count, occupancy, and overdue widgets, and 
   await expect(page.getByTestId("overdue-amount")).toContainText("₱3,000.00");
 
   // Switching the date-range preset updates the URL and re-renders without error.
-  await page.getByLabel("Date range").selectOption("12m");
+  await page.getByRole("button", { name: "Last 6 months" }).click();
+  await page.getByRole("option", { name: "Last 12 months" }).click();
   await page.getByRole("button", { name: "Apply" }).click();
   await expect(page).toHaveURL(/preset=12m/);
   await expect(page.getByTestId("occupancy-row")).toContainText("2/2");

@@ -82,9 +82,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
               typeof tenantInput.email === "string" && tenantInput.email.trim() !== "" ? tenantInput.email.trim() : null,
             phone:
               typeof tenantInput.phone === "string" && tenantInput.phone.trim() !== "" ? tenantInput.phone.trim() : null,
-            emergencyContact:
-              typeof tenantInput.emergencyContact === "string" && tenantInput.emergencyContact.trim() !== ""
-                ? tenantInput.emergencyContact.trim()
+            emergencyContactName:
+              typeof tenantInput.emergencyContactName === "string" && tenantInput.emergencyContactName.trim() !== ""
+                ? tenantInput.emergencyContactName.trim()
+                : null,
+            emergencyContactRelationship:
+              typeof tenantInput.emergencyContactRelationship === "string" &&
+              tenantInput.emergencyContactRelationship.trim() !== ""
+                ? tenantInput.emergencyContactRelationship.trim()
+                : null,
+            emergencyContactPhone:
+              typeof tenantInput.emergencyContactPhone === "string" && tenantInput.emergencyContactPhone.trim() !== ""
+                ? tenantInput.emergencyContactPhone.trim()
                 : null,
             age: typeof tenantInput.age === "number" ? tenantInput.age : null,
             gender:
