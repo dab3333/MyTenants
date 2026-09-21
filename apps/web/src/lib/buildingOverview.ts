@@ -1,11 +1,19 @@
 import type { createScopedClient } from "@mytenants/db";
 
+export type RoomTenant = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  photoUrl: string | null;
+};
+
 export type RoomOccupancy = {
   id: string;
   name: string;
   capacity: number;
   monthlyRate: string;
   occupied: number;
+  tenants: RoomTenant[];
 };
 
 export type FloorOverview = {
@@ -38,14 +46,23 @@ export async function getBuildingOverview(
 
   const roomIds = building.floors.flatMap((floor) => floor.rooms.map((room) => room.id));
 
-  const occupancyCounts = roomIds.length
-    ? await scoped.tenancy.groupBy({
-        by: ["roomId"],
+  const activeTenancies = roomIds.length
+    ? await scoped.tenancy.findMany({
         where: { roomId: { in: roomIds }, status: "ACTIVE" },
-        _count: { _all: true },
+        include: { tenant: true },
       })
     : [];
-  const occupiedByRoomId = new Map(occupancyCounts.map((row) => [row.roomId, row._count._all]));
+  const tenantsByRoomId = new Map<string, RoomTenant[]>();
+  for (const tenancy of activeTenancies) {
+    const list = tenantsByRoomId.get(tenancy.roomId) ?? [];
+    list.push({
+      id: tenancy.tenant.id,
+      firstName: tenancy.tenant.firstName,
+      lastName: tenancy.tenant.lastName,
+      photoUrl: tenancy.tenant.photoUrl,
+    });
+    tenantsByRoomId.set(tenancy.roomId, list);
+  }
 
   return {
     id: building.id,
@@ -54,13 +71,17 @@ export async function getBuildingOverview(
     floors: building.floors.map((floor) => ({
       id: floor.id,
       label: floor.label,
-      rooms: floor.rooms.map((room) => ({
-        id: room.id,
-        name: room.name,
-        capacity: room.capacity,
-        monthlyRate: room.monthlyRate.toString(),
-        occupied: occupiedByRoomId.get(room.id) ?? 0,
-      })),
+      rooms: floor.rooms.map((room) => {
+        const tenants = tenantsByRoomId.get(room.id) ?? [];
+        return {
+          id: room.id,
+          name: room.name,
+          capacity: room.capacity,
+          monthlyRate: room.monthlyRate.toString(),
+          occupied: tenants.length,
+          tenants,
+        };
+      }),
     })),
   };
 }

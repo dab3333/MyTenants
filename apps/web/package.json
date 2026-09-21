@@ -12,7 +12,6 @@
   "dependencies": {
     "@mytenants/db": "workspace:*",
     "bcryptjs": "^2.4.3",
-    "geist": "^1.7.2",
     "next": "^15.0.0",
     "next-auth": "5.0.0-beta.25",
     "react": "^19.0.0",

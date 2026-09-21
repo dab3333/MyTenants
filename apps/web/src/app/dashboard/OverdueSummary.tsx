@@ -1,4 +1,5 @@
 import type { OverdueSummary as OverdueSummaryData } from "@/lib/dashboardMetrics";
+import { formatCurrency } from "@/lib/currency";
 
 export function OverdueSummary({ summary }: { summary: OverdueSummaryData }) {
   const hasOverdue = summary.count > 0;
@@ -16,7 +17,7 @@ export function OverdueSummary({ summary }: { summary: OverdueSummaryData }) {
       <div data-testid="overdue-amount" className="flex-1 pl-6">
         <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Total owed</p>
         <p className={`mt-1.5 text-3xl font-semibold tabular-nums tracking-tight ${valueClass}`}>
-          {summary.totalOwed.toFixed(2)}
+          {formatCurrency(summary.totalOwed)}
         </p>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDownIcon } from "../../icons";
+import { PhotoField } from "../PhotoField";
 
 const FIELD =
   "block w-full rounded border border-zinc-300 px-3 py-1.5 text-zinc-900 transition-shadow focus-visible:border-clay-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500";
@@ -11,6 +12,7 @@ export function EditTenantForm({
   tenantId,
   firstName,
   lastName,
+  photoUrl,
   email,
   phone,
   emergencyContact,
@@ -22,6 +24,7 @@ export function EditTenantForm({
   tenantId: string;
   firstName: string;
   lastName: string;
+  photoUrl: string | null;
   email: string | null;
   phone: string | null;
   emergencyContact: string | null;
@@ -33,6 +36,8 @@ export function EditTenantForm({
   const router = useRouter();
   const [firstNameValue, setFirstNameValue] = useState(firstName);
   const [lastNameValue, setLastNameValue] = useState(lastName);
+  const [photoValue, setPhotoValue] = useState<string | null>(photoUrl);
+  const [photoChanged, setPhotoChanged] = useState(false);
   const [emailValue, setEmailValue] = useState(email ?? "");
   const [phoneValue, setPhoneValue] = useState(phone ?? "");
   const [emergencyContactValue, setEmergencyContactValue] = useState(emergencyContact ?? "");
@@ -41,6 +46,7 @@ export function EditTenantForm({
   const [addressValue, setAddressValue] = useState(address ?? "");
   const [occupationValue, setOccupationValue] = useState(occupation ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -48,6 +54,7 @@ export function EditTenantForm({
     if (isSubmitting) return;
     setIsSubmitting(true);
     setError(null);
+    setSuccess(false);
 
     try {
       const res = await fetch(`/api/tenants/${tenantId}`, {
@@ -56,6 +63,7 @@ export function EditTenantForm({
         body: JSON.stringify({
           firstName: firstNameValue,
           lastName: lastNameValue,
+          photo: photoChanged ? photoValue : undefined,
           email: emailValue,
           phone: phoneValue,
           emergencyContact: emergencyContactValue,
@@ -67,6 +75,10 @@ export function EditTenantForm({
       });
 
       if (res.ok) {
+        const data = await res.json();
+        setPhotoValue(data.tenant.photoUrl ?? null);
+        setPhotoChanged(false);
+        setSuccess(true);
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
@@ -80,9 +92,17 @@ export function EditTenantForm({
   }
 
   return (
-    <div className="max-w-2xl rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-zinc-900">Edit Tenant</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} onChange={() => setSuccess(false)} className="space-y-4">
+        <PhotoField
+          photoUrl={photoValue}
+          firstName={firstNameValue}
+          lastName={lastNameValue}
+          onChange={(next) => {
+            setPhotoValue(next);
+            setPhotoChanged(true);
+          }}
+        />
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium text-zinc-700">
             <span className="mb-1 block">First name</span>
@@ -155,6 +175,11 @@ export function EditTenantForm({
             {error}
           </p>
         )}
+        {success && (
+          <p role="status" className="text-sm font-medium text-green-600">
+            Tenant updated.
+          </p>
+        )}
         <button
           type="submit"
           className="rounded bg-clay-600 px-4 py-1.5 font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
@@ -162,7 +187,6 @@ export function EditTenantForm({
         >
           {isSubmitting ? "Saving..." : "Save Changes"}
         </button>
-      </form>
-    </div>
+    </form>
   );
 }

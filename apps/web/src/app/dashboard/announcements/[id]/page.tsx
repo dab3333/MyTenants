@@ -1,11 +1,23 @@
+import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 
-const DELIVERY_CLASSES: Record<"SENT" | "FAILED", string> = {
-  SENT: "bg-green-100 text-green-800",
-  FAILED: "bg-red-100 text-red-800",
+const DELIVERY_BADGE: Record<"SENT" | "FAILED", string> = {
+  SENT: "bg-green-50 text-green-700",
+  FAILED: "bg-red-50 text-red-700",
 };
+
+const CARD = "rounded-lg border border-zinc-200 bg-white p-6 shadow-sm";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const session = await auth();
+  if (!session?.user?.organizationId) return {};
+  const { id } = await params;
+  const scoped = createScopedClient(session.user.organizationId);
+  const notification = await scoped.notification.findFirst({ where: { id }, select: { subject: true } });
+  return { title: notification?.subject ?? "Announcement" };
+}
 
 export default async function AnnouncementDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -21,27 +33,66 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-2">{notification.subject}</h1>
-      <p className="text-zinc-500 text-sm mb-4">
-        {notification.scope} — {notification.trigger} — {notification.sentAt.toISOString().slice(0, 10)}
-      </p>
-      <p className="max-w-prose whitespace-pre-wrap leading-relaxed text-zinc-800 mb-6">{notification.body}</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{notification.subject}</h1>
+        <p className="mt-1 text-sm text-zinc-500">
+          {notification.scope} — {notification.trigger} — {notification.sentAt.toISOString().slice(0, 10)}
+        </p>
+      </div>
 
-      <h2 className="text-lg font-semibold text-zinc-900 mb-2">Recipients</h2>
-      <ul className="space-y-1">
-        {notification.recipients.map((recipient) => (
-          <li key={recipient.id} data-testid="recipient-row">
-            {recipient.tenant.firstName} {recipient.tenant.lastName} — {recipient.recipientEmail ?? "no email"}{" "}
-            <span
-              data-testid="delivery-status"
-              className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${DELIVERY_CLASSES[recipient.deliveryStatus]}`}
-            >
-              {recipient.deliveryStatus}
-            </span>
-            {recipient.failureReason && <span className="text-zinc-500 text-xs"> ({recipient.failureReason})</span>}
-          </li>
-        ))}
-      </ul>
+      <div className={`mb-6 ${CARD}`}>
+        <h2 className="mb-3 text-lg font-semibold text-zinc-900">Message</h2>
+        <p className="max-w-prose whitespace-pre-wrap leading-relaxed text-zinc-800">{notification.body}</p>
+      </div>
+
+      <h2 className="mb-4 text-lg font-semibold text-zinc-900">Recipients</h2>
+      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
+        <table className="w-full min-w-[32rem] text-left text-sm">
+          <thead>
+            <tr className="border-b border-zinc-200 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th scope="col" className="px-5 py-3 font-medium">
+                Tenant
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Email
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Status
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {notification.recipients.map((recipient) => (
+              <tr key={recipient.id} data-testid="recipient-row">
+                <td className="px-5 py-3 font-medium text-zinc-900">
+                  {recipient.tenant.firstName} {recipient.tenant.lastName}
+                </td>
+                <td className="px-5 py-3 text-zinc-500">{recipient.recipientEmail ?? "No email"}</td>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      data-testid="delivery-status"
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${DELIVERY_BADGE[recipient.deliveryStatus]}`}
+                    >
+                      {recipient.deliveryStatus}
+                    </span>
+                    {recipient.failureReason && (
+                      <span className="text-xs text-zinc-500">{recipient.failureReason}</span>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {notification.recipients.length === 0 && (
+              <tr>
+                <td colSpan={3} className="px-5 py-10 text-center text-zinc-500">
+                  No recipients.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }

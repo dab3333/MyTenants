@@ -2,9 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TenantAvatar } from "./TenantAvatar";
 
 export function TenantRow({
   tenantId,
+  firstName,
+  lastName,
+  photoUrl,
   name,
   statusBadgeClass,
   statusLabel,
@@ -14,6 +18,9 @@ export function TenantRow({
   contact,
 }: {
   tenantId: string;
+  firstName: string;
+  lastName: string;
+  photoUrl: string | null;
   name: string;
   statusBadgeClass: string;
   statusLabel: string;
@@ -35,8 +42,9 @@ export function TenantRow({
         <Link
           href={href}
           onClick={(e) => e.stopPropagation()}
-          className="font-medium text-zinc-900 transition-colors hover:text-clay-700"
+          className="flex items-center gap-3 font-medium text-zinc-900 transition-colors hover:text-clay-700"
         >
+          <TenantAvatar photoUrl={photoUrl} firstName={firstName} lastName={lastName} size="sm" />
           {name}
         </Link>
       </td>

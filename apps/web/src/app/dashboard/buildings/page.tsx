@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -5,6 +6,8 @@ import { createScopedClient } from "@mytenants/db";
 import { getOccupancyByBuilding } from "@/lib/dashboardMetrics";
 import { CreateBuildingForm } from "./CreateBuildingForm";
 import { BuildingMark } from "../icons";
+
+export const metadata: Metadata = { title: "Buildings" };
 
 function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "full" {
   if (occupied === 0) return "vacant";
@@ -31,8 +34,10 @@ export default async function BuildingsListPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-6">Buildings</h1>
-      <CreateBuildingForm />
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Buildings</h1>
+        <CreateBuildingForm />
+      </div>
 
       {buildings.length === 0 ? (
         <div className="mt-8 flex flex-col items-center gap-2 rounded-lg border border-dashed border-zinc-200 py-12 text-center">

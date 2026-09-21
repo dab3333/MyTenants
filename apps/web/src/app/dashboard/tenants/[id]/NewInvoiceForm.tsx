@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PlusIcon } from "../../icons";
+
+const FIELD =
+  "block w-full rounded border border-zinc-300 px-3 py-1.5 text-zinc-900 transition-shadow focus-visible:border-clay-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500";
 
 export function NewInvoiceForm({ tenancyId }: { tenancyId: string }) {
   const router = useRouter();
@@ -43,25 +47,45 @@ export function NewInvoiceForm({ tenancyId }: { tenancyId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
-      <label className="block text-sm font-medium text-zinc-700">
-        Period start
-        <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} required />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Period end
-        <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Due date
-        <input type="date" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Amount due
-        <input type="number" min={0} step="0.01" className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={amountDue} onChange={(e) => setAmountDue(e.target.value)} required />
-      </label>
-      {error && <p role="alert" className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">New invoice</p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Period start</span>
+          <input type="date" className={FIELD} value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} required />
+        </label>
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Period end</span>
+          <input type="date" className={FIELD} value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
+        </label>
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Due date</span>
+          <input type="date" className={FIELD} value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+        </label>
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Amount due</span>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            className={FIELD}
+            value={amountDue}
+            onChange={(e) => setAmountDue(e.target.value)}
+            required
+          />
+        </label>
+      </div>
+      {error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      )}
+      <button
+        type="submit"
+        className="inline-flex items-center gap-2 rounded bg-clay-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
+        disabled={isSubmitting}
+      >
+        <PlusIcon />
         {isSubmitting ? "Creating..." : "New Invoice"}
       </button>
     </form>

@@ -19,19 +19,23 @@ test("dashboard shows income, tenant count, occupancy, and overdue widgets, and 
 
   // Set up a building with two rooms.
   await page.goto("/dashboard/buildings");
-  await page.getByLabel("Name").fill("Dashboard Hall");
   await page.getByRole("button", { name: "Add Building" }).click();
+  await page.getByLabel("Name").fill("Dashboard Hall");
+  await page.getByRole("button", { name: "Save Building" }).click();
   await page.getByRole("link", { name: "Dashboard Hall" }).click();
-  await page.getByLabel("Floor label").fill("1F");
   await page.getByRole("button", { name: "Add Floor" }).click();
+  await page.getByLabel("Floor label").fill("1F");
+  await page.getByRole("button", { name: "Save Floor" }).click();
+  await page.getByRole("button", { name: "Add Room" }).click();
   await page.getByLabel("Room name").fill("101");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
+  await page.getByRole("button", { name: "Save Room" }).click();
   await page.getByRole("button", { name: "Add Room" }).click();
   await page.getByLabel("Room name").fill("102");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
-  await page.getByRole("button", { name: "Add Room" }).click();
+  await page.getByRole("button", { name: "Save Room" }).click();
 
   // Admit a tenant and settle their invoice in full (income widget data).
   await page.goto("/dashboard/tenants/admit");
@@ -78,7 +82,7 @@ test("dashboard shows income, tenant count, occupancy, and overdue widgets, and 
   await page.goto("/dashboard");
   await expect(page.getByTestId("occupancy-row")).toContainText("2/2");
   await expect(page.getByTestId("overdue-count")).toContainText("1");
-  await expect(page.getByTestId("overdue-amount")).toContainText("3000.00");
+  await expect(page.getByTestId("overdue-amount")).toContainText("₱3,000.00");
 
   // Switching the date-range preset updates the URL and re-renders without error.
   await page.getByLabel("Date range").selectOption("12m");

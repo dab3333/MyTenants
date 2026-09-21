@@ -66,8 +66,15 @@ describe("getBuildingOverview", () => {
     expect(fullRoomResult.capacity).toBe(2);
     expect(partialRoomResult.occupied).toBe(1);
 
+    // The tenant list backing the room's modal should include only ACTIVE occupants.
+    expect(fullRoomResult.tenants.map((t) => t.id).sort()).toEqual([tenant1.id, tenant2.id].sort());
+    expect(partialRoomResult.tenants).toEqual([
+      expect.objectContaining({ id: activeTenant.id, firstName: "D", lastName: "Four" }),
+    ]);
+
     const floor2Result = overview!.floors.find((f) => f.label === "2F")!;
     const vacantRoomResult = floor2Result.rooms.find((r) => r.name === "201")!;
     expect(vacantRoomResult.occupied).toBe(0);
+    expect(vacantRoomResult.tenants).toEqual([]);
   });
 });

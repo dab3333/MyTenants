@@ -2,6 +2,7 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import type { IncomeTrendPoint } from "@/lib/dashboardMetrics";
+import { formatCurrency } from "@/lib/currency";
 
 function EmptyTrendState({ message }: { message: string }) {
   return (
@@ -24,9 +25,9 @@ export function IncomeTrendChart({ data }: { data: IncomeTrendPoint[] }) {
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="label" />
-        <YAxis />
-        <Tooltip />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={{ stroke: "#e4e4e7" }} />
+        <YAxis tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={{ stroke: "#e4e4e7" }} />
+        <Tooltip formatter={(value: number) => [formatCurrency(value), "Income"]} />
         <Line type="monotone" dataKey="totalPaid" stroke="#9C4526" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>

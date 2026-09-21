@@ -24,8 +24,8 @@ export function TenantCountChart({ data }: { data: TenantCountPoint[] }) {
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="label" />
-        <YAxis allowDecimals={false} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={{ stroke: "#e4e4e7" }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={{ stroke: "#e4e4e7" }} />
         <Tooltip />
         <Line type="monotone" dataKey="activeTenantCount" stroke="#52525b" strokeWidth={2} dot={false} />
       </LineChart>

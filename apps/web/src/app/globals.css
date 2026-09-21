@@ -11,3 +11,77 @@
   outline: 2px solid theme("colors.clay.500");
   outline-offset: 2px;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal-panel {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+    transition:
+      opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+      overlay 180ms allow-discrete,
+      display 180ms allow-discrete;
+  }
+
+  .modal-panel[open] {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  @starting-style {
+    .modal-panel[open] {
+      opacity: 0;
+      transform: scale(0.96) translateY(6px);
+    }
+  }
+
+  .modal-panel::backdrop {
+    opacity: 0;
+    transition:
+      opacity 180ms ease-out,
+      overlay 180ms allow-discrete,
+      display 180ms allow-discrete;
+  }
+
+  .modal-panel[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .modal-panel[open]::backdrop {
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-panel {
+    opacity: 0;
+    transition: opacity 120ms ease-out, overlay 120ms allow-discrete, display 120ms allow-discrete;
+  }
+
+  .modal-panel[open] {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .modal-panel[open] {
+      opacity: 0;
+    }
+  }
+
+  .modal-panel::backdrop {
+    opacity: 0;
+    transition: opacity 120ms ease-out, overlay 120ms allow-discrete, display 120ms allow-discrete;
+  }
+
+  .modal-panel[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .modal-panel[open]::backdrop {
+      opacity: 0;
+    }
+  }
+}

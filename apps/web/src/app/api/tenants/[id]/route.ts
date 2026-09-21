@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createScopedClient, type Prisma } from "@mytenants/db";
 import { requireOrgSession } from "@/lib/requireOrgSession";
+import { deleteTenantPhoto, saveTenantPhoto } from "@/lib/tenantPhoto";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOrgSession();
@@ -58,6 +59,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     data.occupation = body.occupation.trim() === "" ? null : body.occupation.trim();
   }
   // `status` is intentionally never read from the body — see Global Constraints.
+
+  if (body.photo === null) {
+    await deleteTenantPhoto(existing.photoUrl);
+    data.photoUrl = null;
+  } else if (typeof body.photo === "string") {
+    const photoUrl = await saveTenantPhoto(id, body.photo);
+    if (!photoUrl) {
+      return NextResponse.json({ error: "photo must be a JPEG, PNG, or WebP image under 4MB" }, { status: 400 });
+    }
+    await deleteTenantPhoto(existing.photoUrl);
+    data.photoUrl = photoUrl;
+  }
 
   const tenant = await scoped.tenant.update({ where: { id }, data });
   return NextResponse.json({ tenant });

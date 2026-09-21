@@ -1,13 +1,13 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 import { NewAnnouncementForm } from "./NewAnnouncementForm";
+import { NotificationRow } from "./NotificationRow";
 
-const DELIVERY_CLASSES: Record<"SENT" | "FAILED", string> = {
-  SENT: "bg-green-100 text-green-800",
-  FAILED: "bg-red-100 text-red-800",
-};
+export const metadata: Metadata = { title: "Announcements" };
+
+const CARD = "rounded-lg border border-zinc-200 bg-white p-6 shadow-sm";
 
 export default async function AnnouncementsPage() {
   const session = await auth();
@@ -23,36 +23,62 @@ export default async function AnnouncementsPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-4">Announcements</h1>
-      <NewAnnouncementForm buildings={buildings} rooms={rooms} tenants={tenants} />
+      <h1 className="mb-6 text-2xl font-semibold text-zinc-900 tracking-tight">Announcements</h1>
 
-      <h2 className="text-lg font-semibold text-zinc-900 mt-8 mb-4">History</h2>
-      <ul className="space-y-2">
-        {notifications.map((notification) => {
-          const sentCount = notification.recipients.filter((r) => r.deliveryStatus === "SENT").length;
-          const failedCount = notification.recipients.filter((r) => r.deliveryStatus === "FAILED").length;
-          return (
-            <li key={notification.id} data-testid="notification-row">
-              <Link className="text-clay-700 underline decoration-clay-300 underline-offset-2 hover:text-clay-800 hover:decoration-clay-500 transition-colors" href={`/dashboard/announcements/${notification.id}`}>
-                {notification.subject}
-              </Link>
-              <span className="text-zinc-500 text-sm">
-                {" "}
-                — {notification.scope} — {notification.trigger} — {notification.sentAt.toISOString().slice(0, 10)}{" "}
-              </span>
-              <span data-testid="notification-delivery-summary" className="text-xs">
-                {sentCount} sent
-                {failedCount > 0 && (
-                  <span className={`ml-1 inline-block rounded px-2 py-0.5 font-medium ${DELIVERY_CLASSES.FAILED}`}>
-                    {failedCount} failed
-                  </span>
-                )}
-              </span>
-            </li>
-          );
-        })}
-        {notifications.length === 0 && <li className="text-zinc-500">No announcements sent yet.</li>}
-      </ul>
+      <div className={`mb-6 ${CARD}`}>
+        <h2 className="mb-4 text-lg font-semibold text-zinc-900">Compose</h2>
+        <NewAnnouncementForm buildings={buildings} rooms={rooms} tenants={tenants} />
+      </div>
+
+      <h2 className="mb-4 text-lg font-semibold text-zinc-900">History</h2>
+      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
+        <table className="w-full min-w-[42rem] text-left text-sm">
+          <thead>
+            <tr className="border-b border-zinc-200 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <th scope="col" className="px-5 py-3 font-medium">
+                Subject
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Scope
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Trigger
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Sent
+              </th>
+              <th scope="col" className="px-5 py-3 font-medium">
+                Delivery
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {notifications.map((notification) => {
+              const sentCount = notification.recipients.filter((r) => r.deliveryStatus === "SENT").length;
+              const failedCount = notification.recipients.filter((r) => r.deliveryStatus === "FAILED").length;
+              return (
+                <NotificationRow
+                  key={notification.id}
+                  notificationId={notification.id}
+                  subject={notification.subject}
+                  scope={notification.scope}
+                  trigger={notification.trigger}
+                  sentAt={notification.sentAt.toISOString().slice(0, 10)}
+                  sentCount={sentCount}
+                  failedCount={failedCount}
+                />
+              );
+            })}
+            {notifications.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-5 py-10 text-center text-zinc-500">
+                  No announcements sent yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }

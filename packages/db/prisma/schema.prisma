@@ -100,6 +100,7 @@ model Tenant {
   gender           String?
   address          String?
   occupation       String?
+  photoUrl         String?
   status           TenantStatus @default(PROSPECT)
   createdAt        DateTime     @default(now())
 

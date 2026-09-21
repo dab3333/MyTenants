@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createScopedClient } from "@mytenants/db";
 import { requireOrgSession } from "@/lib/requireOrgSession";
+import { saveTenantPhoto } from "@/lib/tenantPhoto";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOrgSession();
@@ -118,6 +119,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
       return { tenant: tenantRecord, tenancy };
     });
+
+    if (!isExisting && typeof tenantInput.photo === "string") {
+      const photoUrl = await saveTenantPhoto(result.tenant.id, tenantInput.photo);
+      if (photoUrl) {
+        result.tenant = await scoped.tenant.update({ where: { id: result.tenant.id }, data: { photoUrl } });
+      }
+    }
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

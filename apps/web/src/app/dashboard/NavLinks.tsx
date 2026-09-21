@@ -47,7 +47,7 @@ export function NavLinks() {
   return (
     <nav
       ref={containerRef}
-      className="relative mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm font-medium text-zinc-600"
+      className="relative mt-5 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm font-medium text-zinc-600"
     >
       {indicator && (
         <span

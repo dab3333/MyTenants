@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 import { getBuildingOverview } from "@/lib/buildingOverview";
 import { AddFloorForm } from "./AddFloorForm";
 import { AddRoomForm } from "./AddRoomForm";
+import { BuildingMenu } from "./BuildingMenu";
+import { FloorMenu } from "./FloorMenu";
+import { RoomCard } from "./RoomCard";
 
 function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "full" {
   if (occupied === 0) return "vacant";
@@ -11,11 +15,16 @@ function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "
   return "partial";
 }
 
-const STATUS_CLASSES: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "bg-zinc-100 text-zinc-600",
-  partial: "bg-amber-100 text-amber-800",
-  full: "bg-red-100 text-red-800",
-};
+const CARD = "rounded-lg border border-zinc-200 bg-white p-5 shadow-sm";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const session = await auth();
+  if (!session?.user?.organizationId) return {};
+  const { id } = await params;
+  const scoped = createScopedClient(session.user.organizationId);
+  const building = await scoped.building.findFirst({ where: { id }, select: { name: true } });
+  return { title: building?.name ?? "Building" };
+}
 
 export default async function BuildingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,37 +44,41 @@ export default async function BuildingDetailPage({ params }: { params: Promise<{
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight mb-1">{building.name}</h1>
-      {building.address && <p className="text-zinc-500 mb-6">{building.address}</p>}
-
-      <div className="mt-6">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="mb-1 flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{building.name}</h1>
+            <BuildingMenu buildingId={building.id} name={building.name} address={building.address} />
+          </div>
+          {building.address && <p className="text-zinc-500">{building.address}</p>}
+        </div>
         <AddFloorForm buildingId={building.id} />
       </div>
 
-      <div className="mt-8 space-y-6">
+      <div className="space-y-6">
         {building.floors.map((floor) => (
-          <section key={floor.id}>
-            <h2 className="text-lg font-semibold text-zinc-900 mb-2">{floor.label}</h2>
-            <div className="flex gap-3 flex-wrap mb-2">
+          <section key={floor.id} className={CARD}>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-zinc-900">{floor.label}</h2>
+              <FloorMenu floorId={floor.id} label={floor.label} />
+            </div>
+            <div className="flex gap-3 flex-wrap">
               {floor.rooms.map((room) => {
                 const status = statusFor(room.occupied, room.capacity);
                 return (
-                  <div
+                  <RoomCard
                     key={room.id}
-                    data-testid="room-card"
-                    data-status={status}
-                    className={`rounded-lg p-3 min-w-[7rem] border ${STATUS_CLASSES[status]}`}
-                  >
-                    <div className="font-semibold">{room.name}</div>
-                    <div className="text-sm">
-                      {room.occupied}/{room.capacity}
-                    </div>
-                  </div>
+                    roomId={room.id}
+                    roomName={room.name}
+                    occupied={room.occupied}
+                    capacity={room.capacity}
+                    status={status}
+                    tenants={room.tenants}
+                  />
                 );
               })}
-              {floor.rooms.length === 0 && <p className="text-zinc-500 text-sm">No rooms yet.</p>}
+              <AddRoomForm floorId={floor.id} />
             </div>
-            <AddRoomForm floorId={floor.id} />
           </section>
         ))}
         {building.floors.length === 0 && <p className="text-zinc-500">No floors yet.</p>}

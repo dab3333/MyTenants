@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronDownIcon, PlusIcon } from "../../icons";
 
 const PAYMENT_METHODS = ["CASH", "BANK_TRANSFER", "GCASH", "OTHER"] as const;
+
+const FIELD =
+  "block w-full rounded border border-zinc-300 px-3 py-1.5 text-zinc-900 transition-shadow focus-visible:border-clay-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500";
 
 export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
@@ -42,43 +46,53 @@ export function RecordPaymentForm({ invoiceId }: { invoiceId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Amount paid</span>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            className={FIELD}
+            value={amountPaid}
+            onChange={(e) => setAmountPaid(e.target.value)}
+            required
+          />
+        </label>
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Method</span>
+          <div className="relative">
+            <select
+              className={`${FIELD} appearance-none pr-8`}
+              value={method}
+              onChange={(e) => setMethod(e.target.value as (typeof PAYMENT_METHODS)[number])}
+            >
+              {PAYMENT_METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          </div>
+        </label>
+      </div>
       <label className="block text-sm font-medium text-zinc-700">
-        Amount paid
-        <input
-          type="number"
-          min={0}
-          step="0.01"
-          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-          value={amountPaid}
-          onChange={(e) => setAmountPaid(e.target.value)}
-          required
-        />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Method
-        <select
-          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-          value={method}
-          onChange={(e) => setMethod(e.target.value as (typeof PAYMENT_METHODS)[number])}
-        >
-          {PAYMENT_METHODS.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Notes
-        <input className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block" value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <span className="mb-1 block">Notes</span>
+        <input className={FIELD} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
       {error && (
-        <p role="alert" className="text-red-600 text-sm">
+        <p role="alert" className="text-sm text-red-600">
           {error}
         </p>
       )}
-      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
+      <button
+        type="submit"
+        className="inline-flex items-center gap-2 rounded bg-clay-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
+        disabled={isSubmitting}
+      >
+        <PlusIcon />
         {isSubmitting ? "Recording..." : "Record Payment"}
       </button>
     </form>

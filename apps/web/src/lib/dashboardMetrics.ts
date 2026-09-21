@@ -78,6 +78,20 @@ export async function getOccupancyByBuilding(
   });
 }
 
+export type TenantStatusCounts = { active: number; prospects: number };
+
+export async function getTenantStatusCounts(
+  scoped: ReturnType<typeof createScopedClient>
+): Promise<TenantStatusCounts> {
+  const counts = await scoped.tenant.groupBy({
+    by: ["status"],
+    where: { status: { in: ["ACTIVE", "PROSPECT"] } },
+    _count: { _all: true },
+  });
+  const byStatus = new Map(counts.map((row) => [row.status, row._count._all]));
+  return { active: byStatus.get("ACTIVE") ?? 0, prospects: byStatus.get("PROSPECT") ?? 0 };
+}
+
 export async function getOverdueSummary(
   scoped: ReturnType<typeof createScopedClient>
 ): Promise<OverdueSummary> {

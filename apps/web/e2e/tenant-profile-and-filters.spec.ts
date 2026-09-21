@@ -18,19 +18,23 @@ test("edit a tenant's profile and filter the tenant list by building and room", 
 
   // Set up a building with two rooms so the filter has something to distinguish.
   await page.goto("/dashboard/buildings");
-  await page.getByLabel("Name").fill("Profile Hall");
   await page.getByRole("button", { name: "Add Building" }).click();
+  await page.getByLabel("Name").fill("Profile Hall");
+  await page.getByRole("button", { name: "Save Building" }).click();
   await page.getByRole("link", { name: "Profile Hall" }).click();
-  await page.getByLabel("Floor label").fill("1F");
   await page.getByRole("button", { name: "Add Floor" }).click();
+  await page.getByLabel("Floor label").fill("1F");
+  await page.getByRole("button", { name: "Save Floor" }).click();
+  await page.getByRole("button", { name: "Add Room" }).click();
   await page.getByLabel("Room name").fill("101");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
+  await page.getByRole("button", { name: "Save Room" }).click();
   await page.getByRole("button", { name: "Add Room" }).click();
   await page.getByLabel("Room name").fill("102");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
-  await page.getByRole("button", { name: "Add Room" }).click();
+  await page.getByRole("button", { name: "Save Room" }).click();
 
   // Admit a tenant into room 101.
   await page.goto("/dashboard/tenants/admit");
@@ -41,17 +45,21 @@ test("edit a tenant's profile and filter the tenant list by building and room", 
   await page.getByLabel("Deposit amount").fill("3000");
   await page.getByRole("button", { name: "Admit Tenant" }).click();
   await expect(page).toHaveURL(/\/dashboard\/tenants\/.+/);
-  await expect(page.getByRole("heading", { name: "Edit Tenant" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Original Name" })).toBeVisible();
 
-  // Edit the tenant's profile.
+  // Edit the tenant's profile via the modal.
+  await page.getByRole("button", { name: "Edit" }).click();
+  await expect(page.getByRole("heading", { name: "Edit Tenant" })).toBeVisible();
   await page.getByLabel("First name").fill("Updated");
   await page.getByLabel("Last name").fill("Tenant");
   await page.getByLabel("Email").fill("updated@example.com");
   await page.getByLabel("Phone").fill("555-1234");
   await page.getByLabel("Emergency contact").fill("Jane Doe");
   await page.getByRole("button", { name: "Save Changes" }).click();
+  await expect(page.getByText("Tenant updated.")).toBeVisible();
+  await expect(page.getByLabel("Email")).toHaveValue("updated@example.com");
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("heading", { name: "Updated Tenant" })).toBeVisible();
-  await expect(page.getByText("Email: updated@example.com")).toBeVisible();
 
   // The tenants list filters live as selections change, with no Filter button to click.
   await page.goto("/dashboard/tenants");

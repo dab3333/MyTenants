@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 import { TenantFilters } from "./TenantFilters";
 import { TenantRow } from "./TenantRow";
 import { TenantsHeader } from "./TenantsHeader";
+
+export const metadata: Metadata = { title: "Tenants" };
 
 export default async function TenantsListPage({
   searchParams,
@@ -112,6 +115,9 @@ export default async function TenantsListPage({
                 <TenantRow
                   key={tenant.id}
                   tenantId={tenant.id}
+                  firstName={tenant.firstName}
+                  lastName={tenant.lastName}
+                  photoUrl={tenant.photoUrl}
                   name={`${tenant.firstName} ${tenant.lastName}`}
                   statusBadgeClass={STATUS_BADGE[tenant.status]}
                   statusLabel={STATUS_LABEL[tenant.status]}

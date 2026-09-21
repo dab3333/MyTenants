@@ -1,7 +1,13 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { prisma, createScopedClient } from "@mytenants/db";
 import { buildMonthBuckets } from "../dateRange";
-import { getIncomeTrend, getTenantCountTrend, getOccupancyByBuilding, getOverdueSummary } from "../dashboardMetrics";
+import {
+  getIncomeTrend,
+  getTenantCountTrend,
+  getOccupancyByBuilding,
+  getOverdueSummary,
+  getTenantStatusCounts,
+} from "../dashboardMetrics";
 
 async function makeUser(organizationId: string) {
   return prisma.user.create({
@@ -278,6 +284,34 @@ describe("getOccupancyByBuilding", () => {
     const result = await getOccupancyByBuilding(scoped);
 
     expect(result).toEqual([]);
+  });
+});
+
+describe("getTenantStatusCounts", () => {
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
+  it("counts active and prospect tenants separately, excluding moved-out tenants", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org Status Counts ${Math.random()}` } });
+    await prisma.tenant.create({ data: { organizationId: org.id, firstName: "A", lastName: "One", status: "ACTIVE" } });
+    await prisma.tenant.create({ data: { organizationId: org.id, firstName: "B", lastName: "Two", status: "ACTIVE" } });
+    await prisma.tenant.create({ data: { organizationId: org.id, firstName: "C", lastName: "Three", status: "PROSPECT" } });
+    await prisma.tenant.create({ data: { organizationId: org.id, firstName: "D", lastName: "Four", status: "MOVED_OUT" } });
+
+    const scoped = createScopedClient(org.id);
+    const result = await getTenantStatusCounts(scoped);
+
+    expect(result).toEqual({ active: 2, prospects: 1 });
+  });
+
+  it("returns zero counts when there are no tenants", async () => {
+    const org = await prisma.organization.create({ data: { name: `Org No Tenants ${Math.random()}` } });
+    const scoped = createScopedClient(org.id);
+
+    const result = await getTenantStatusCounts(scoped);
+
+    expect(result).toEqual({ active: 0, prospects: 0 });
   });
 });
 

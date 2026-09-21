@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { AvailableRoom } from "@/lib/availableRooms";
+import { formatCurrency } from "@/lib/currency";
 import { ChevronDownIcon, UserPlusIcon } from "../../icons";
+import { PhotoField } from "../PhotoField";
+import { TenantAvatar } from "../TenantAvatar";
 
 type Prospect = { id: string; firstName: string; lastName: string };
 
@@ -16,16 +19,20 @@ const SEGMENT_BASE = "rounded-md px-3 py-1.5 text-sm font-medium transition-colo
 export function AdmitTenantForm({
   availableRooms,
   prospects,
+  initialRoomId,
 }: {
   availableRooms: AvailableRoom[];
   prospects: Prospect[];
+  initialRoomId?: string;
 }) {
   const router = useRouter();
+  const initialRoom = availableRooms.find((room) => room.roomId === initialRoomId) ?? availableRooms[0];
   const [mode, setMode] = useState<"new" | "existing">("new");
-  const [roomId, setRoomId] = useState(availableRooms[0]?.roomId ?? "");
+  const [roomId, setRoomId] = useState(initialRoom?.roomId ?? "");
   const [prospectId, setProspectId] = useState(prospects[0]?.id ?? "");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [address, setAddress] = useState("");
@@ -35,7 +42,7 @@ export function AdmitTenantForm({
   const [emergencyContact, setEmergencyContact] = useState("");
   const [startDate, setStartDate] = useState("");
   const [billingDay, setBillingDay] = useState("1");
-  const [monthlyRate, setMonthlyRate] = useState(availableRooms[0]?.monthlyRate ?? "0");
+  const [monthlyRate, setMonthlyRate] = useState(initialRoom?.monthlyRate ?? "0");
   const [depositAmount, setDepositAmount] = useState("0");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +60,7 @@ export function AdmitTenantForm({
           : {
               firstName,
               lastName,
+              photo: photoDataUrl,
               age: age.trim() === "" ? null : Number(age),
               gender: gender.trim() === "" ? null : gender,
               address: address.trim() === "" ? null : address,
@@ -89,9 +97,15 @@ export function AdmitTenantForm({
   }
 
   const hasProspects = prospects.length > 0;
+  const selectedRoom = availableRooms.find((room) => room.roomId === roomId);
+  const selectedProspect = prospects.find((p) => p.id === prospectId);
+  const displayFirstName = mode === "existing" ? (selectedProspect?.firstName ?? "") : firstName;
+  const displayLastName = mode === "existing" ? (selectedProspect?.lastName ?? "") : lastName;
+  const hasName = displayFirstName.trim() !== "" || displayLastName.trim() !== "";
 
   return (
-    <div className="max-w-2xl rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,42rem)_20rem] lg:items-start">
+      <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <span className="mb-2 block text-sm font-medium text-zinc-700">Tenant</span>
@@ -129,6 +143,8 @@ export function AdmitTenantForm({
                 <input className={FIELD} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
               </label>
             </div>
+
+            <PhotoField photoUrl={photoDataUrl} firstName={firstName} lastName={lastName} onChange={setPhotoDataUrl} />
 
             <div>
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile</p>
@@ -325,6 +341,63 @@ export function AdmitTenantForm({
           </Link>
         </div>
       </form>
+      </div>
+
+      <aside className="space-y-5 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm lg:sticky lg:top-6">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Summary</h2>
+
+        <div className="flex items-center gap-3">
+          <TenantAvatar
+            photoUrl={mode === "new" ? photoDataUrl : null}
+            firstName={displayFirstName}
+            lastName={displayLastName}
+            size="lg"
+          />
+          <div>
+            <p className="font-medium text-zinc-900">
+              {hasName ? `${displayFirstName} ${displayLastName}`.trim() : "New tenant"}
+            </p>
+            <p className="text-sm text-zinc-500">
+              {mode === "existing" ? "Existing prospect" : "New admission"}
+            </p>
+          </div>
+        </div>
+
+        <div className="border-t border-zinc-100 pt-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Room</p>
+          {selectedRoom ? (
+            <>
+              <p className="mt-1 font-medium text-zinc-900">
+                {selectedRoom.buildingName} / {selectedRoom.floorLabel} / {selectedRoom.roomName}
+              </p>
+              <p className="text-sm text-zinc-500">
+                {selectedRoom.occupied + 1}/{selectedRoom.capacity} occupied after admission
+              </p>
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-zinc-500">No room selected.</p>
+          )}
+        </div>
+
+        <div className="space-y-2 border-t border-zinc-100 pt-4 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-500">Monthly rate</span>
+            <span className="font-medium text-zinc-900">{formatCurrency(Number(monthlyRate) || 0)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-500">Deposit</span>
+            <span className="font-medium text-zinc-900">{formatCurrency(Number(depositAmount) || 0)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-500">Start date</span>
+            <span className="font-medium text-zinc-900">{startDate || "—"}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-500">Billing day</span>
+            <span className="font-medium text-zinc-900">{billingDay}</span>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }

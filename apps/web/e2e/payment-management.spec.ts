@@ -18,15 +18,18 @@ test("create a manual invoice, record a payment, and see it settle as PAID", asy
 
   // Set up a building/floor/room and admit a tenant into it.
   await page.goto("/dashboard/buildings");
-  await page.getByLabel("Name").fill("Payment Hall");
   await page.getByRole("button", { name: "Add Building" }).click();
+  await page.getByLabel("Name").fill("Payment Hall");
+  await page.getByRole("button", { name: "Save Building" }).click();
   await page.getByRole("link", { name: "Payment Hall" }).click();
-  await page.getByLabel("Floor label").fill("1F");
   await page.getByRole("button", { name: "Add Floor" }).click();
+  await page.getByLabel("Floor label").fill("1F");
+  await page.getByRole("button", { name: "Save Floor" }).click();
+  await page.getByRole("button", { name: "Add Room" }).click();
   await page.getByLabel("Room name").fill("101");
   await page.getByLabel("Capacity").fill("1");
   await page.getByLabel("Monthly rate").fill("3000");
-  await page.getByRole("button", { name: "Add Room" }).click();
+  await page.getByRole("button", { name: "Save Room" }).click();
   await expect(page.getByTestId("room-card")).toContainText("0/1");
 
   await page.goto("/dashboard/tenants/admit");
@@ -44,7 +47,7 @@ test("create a manual invoice, record a payment, and see it settle as PAID", asy
   await page.getByLabel("Due date").fill("2026-01-05");
   await page.getByLabel("Amount due").fill("3000");
   await page.getByRole("button", { name: "New Invoice" }).click();
-  await expect(page.getByTestId("invoice-row")).toContainText("0/3000");
+  await expect(page.getByTestId("invoice-row")).toContainText("₱0.00 / ₱3,000.00");
 
   // Follow it to the invoice detail page and record a full payment.
   await page.getByTestId("invoice-row").getByRole("link").click();

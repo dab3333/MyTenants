@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const FIELD =
+  "block w-full rounded border border-zinc-300 px-3 py-1.5 text-zinc-900 transition-shadow focus-visible:border-clay-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500";
+
 export function EditInvoiceForm({
   invoiceId,
   periodStart,
@@ -53,55 +56,63 @@ export function EditInvoiceForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 max-w-sm mt-2">
-      <label className="block text-sm font-medium text-zinc-700">
-        Period start
-        <input
-          type="date"
-          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-          value={form.periodStart}
-          onChange={(e) => setForm({ ...form, periodStart: e.target.value })}
-          required
-        />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Period end
-        <input
-          type="date"
-          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-          value={form.periodEnd}
-          onChange={(e) => setForm({ ...form, periodEnd: e.target.value })}
-          required
-        />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Due date
-        <input
-          type="date"
-          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-          value={form.dueDate}
-          onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-          required
-        />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        Amount due
-        <input
-          type="number"
-          min={0}
-          step="0.01"
-          className="border border-zinc-300 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:border-clay-500 transition-shadow block"
-          value={form.amountDue}
-          onChange={(e) => setForm({ ...form, amountDue: e.target.value })}
-          required
-        />
-      </label>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Period start</span>
+          <input
+            type="date"
+            className={FIELD}
+            value={form.periodStart}
+            onChange={(e) => setForm({ ...form, periodStart: e.target.value })}
+            required
+          />
+        </label>
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Period end</span>
+          <input
+            type="date"
+            className={FIELD}
+            value={form.periodEnd}
+            onChange={(e) => setForm({ ...form, periodEnd: e.target.value })}
+            required
+          />
+        </label>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Due date</span>
+          <input
+            type="date"
+            className={FIELD}
+            value={form.dueDate}
+            onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+            required
+          />
+        </label>
+        <label className="text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Amount due</span>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            className={FIELD}
+            value={form.amountDue}
+            onChange={(e) => setForm({ ...form, amountDue: e.target.value })}
+            required
+          />
+        </label>
+      </div>
       {error && (
-        <p role="alert" className="text-red-600 text-sm">
+        <p role="alert" className="text-sm text-red-600">
           {error}
         </p>
       )}
-      <button type="submit" className="bg-clay-600 text-white rounded px-3 py-1.5 font-medium hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:bg-clay-300 disabled:cursor-not-allowed transition-colors" disabled={isSubmitting}>
+      <button
+        type="submit"
+        className="rounded bg-clay-600 px-4 py-1.5 font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? "Saving..." : "Save Invoice"}
       </button>
     </form>
