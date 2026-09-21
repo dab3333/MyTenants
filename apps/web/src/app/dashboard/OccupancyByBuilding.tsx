@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BuildingOccupancy } from "@/lib/dashboardMetrics";
 import { BuildingMark } from "./icons";
@@ -8,25 +11,37 @@ function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "
   return "partial";
 }
 
-const BADGE_CLASSES: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "bg-zinc-100 text-zinc-500",
-  partial: "bg-amber-50 text-amber-700",
-  full: "bg-green-50 text-green-700",
+const DOT_CLASSES: Record<"vacant" | "partial" | "full", string> = {
+  vacant: "border border-zinc-300 bg-white",
+  partial: "bg-clay-500",
+  full: "bg-clay-600",
 };
 
 const BAR_CLASSES: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "bg-zinc-300",
-  partial: "bg-amber-500",
-  full: "bg-green-500",
+  vacant: "",
+  partial: "bg-clay-500",
+  full: "bg-clay-600",
 };
 
-const STATUS_LABELS: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "Vacant",
-  partial: "Partial",
-  full: "Full",
+const NAME_CLASSES: Record<"vacant" | "partial" | "full", string> = {
+  vacant: "text-zinc-400",
+  partial: "text-zinc-900",
+  full: "text-zinc-900",
+};
+
+const PCT_CLASSES: Record<"vacant" | "partial" | "full", string> = {
+  vacant: "text-zinc-400",
+  partial: "text-zinc-900",
+  full: "text-zinc-900",
 };
 
 export function OccupancyByBuilding({ buildings }: { buildings: BuildingOccupancy[] }) {
+  const [animate, setAnimate] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   if (buildings.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-6 text-center">
@@ -53,25 +68,26 @@ export function OccupancyByBuilding({ buildings }: { buildings: BuildingOccupanc
           <li
             key={building.id}
             data-testid="occupancy-row"
-            className={`py-3 ${index > 0 ? "border-t border-zinc-100" : ""}`}
+            className={`flex items-center gap-3.5 py-3.5 ${index > 0 ? "border-t border-zinc-100" : ""}`}
           >
-            <div className="flex items-center justify-between gap-3">
-              <span className="truncate font-medium text-zinc-900">{building.name}</span>
-              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${BADGE_CLASSES[status]}`}>
-                {STATUS_LABELS[status]}
-              </span>
-            </div>
-            <div className="mt-2 flex items-center gap-3">
-              <div className="h-1.5 flex-1 rounded-full bg-zinc-100">
+            <span className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSES[status]}`} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-3">
+                <span className={`truncate font-medium ${NAME_CLASSES[status]}`}>{building.name}</span>
+                <span className="shrink-0 text-sm text-zinc-400">
+                  {building.occupiedCapacity}/{building.totalCapacity} rooms
+                </span>
+              </div>
+              <div className="mt-2 h-[5px] rounded-full bg-zinc-100">
                 <div
-                  className={`h-full rounded-full transition-[width] ${BAR_CLASSES[status]}`}
-                  style={{ width: `${pct}%` }}
+                  className={`h-full rounded-full transition-[width] duration-700 ease-out ${BAR_CLASSES[status]}`}
+                  style={{ width: animate ? `${pct}%` : "0%", transitionDelay: `${index * 70}ms` }}
                 />
               </div>
-              <span className="shrink-0 text-xs tabular-nums text-zinc-500">
-                {building.occupiedCapacity}/{building.totalCapacity} · {pct}%
-              </span>
             </div>
+            <span className={`w-[52px] shrink-0 text-right text-xl font-bold tabular-nums ${PCT_CLASSES[status]}`}>
+              {pct}%
+            </span>
           </li>
         );
       })}

@@ -16,9 +16,15 @@ function statusFor(occupied: number, capacity: number): "vacant" | "partial" | "
 }
 
 const BAR_CLASSES: Record<"vacant" | "partial" | "full", string> = {
-  vacant: "bg-zinc-300",
-  partial: "bg-amber-500",
-  full: "bg-green-500",
+  vacant: "",
+  partial: "bg-clay-500",
+  full: "bg-clay-600",
+};
+
+const PCT_CLASSES: Record<"vacant" | "partial" | "full", string> = {
+  vacant: "text-zinc-400",
+  partial: "text-zinc-900",
+  full: "text-zinc-900",
 };
 
 export default async function BuildingsListPage() {
@@ -68,10 +74,12 @@ export default async function BuildingsListPage() {
                     {building.address && <p className="truncate text-sm text-zinc-500">{building.address}</p>}
                   </div>
                   <div className="flex items-center gap-3 sm:w-40 sm:shrink-0">
-                    <div className="h-1.5 flex-1 rounded-full bg-zinc-100">
+                    <div className="h-[5px] flex-1 rounded-full bg-zinc-100">
                       <div className={`h-full rounded-full ${BAR_CLASSES[status]}`} style={{ width: `${pct}%` }} />
                     </div>
-                    <span className="w-9 shrink-0 text-right text-xs tabular-nums text-zinc-500">{pct}%</span>
+                    <span className={`w-9 shrink-0 text-right text-sm font-semibold tabular-nums ${PCT_CLASSES[status]}`}>
+                      {pct}%
+                    </span>
                   </div>
                 </Link>
               </li>
