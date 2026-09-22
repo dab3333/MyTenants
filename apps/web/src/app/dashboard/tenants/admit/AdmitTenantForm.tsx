@@ -109,7 +109,7 @@ export function AdmitTenantForm({
   const hasName = displayFirstName.trim() !== "" || displayLastName.trim() !== "";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,42rem)_20rem] lg:items-start">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
       <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -137,7 +137,9 @@ export function AdmitTenantForm({
         </div>
 
         {mode === "new" ? (
-          <>
+          <div key="new" className="space-y-6 animate-slide-in-left">
+            <PhotoField photoUrl={photoDataUrl} firstName={firstName} lastName={lastName} onChange={setPhotoDataUrl} />
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label className="text-sm font-medium text-zinc-700">
                 <span className="mb-1 block">First name</span>
@@ -148,8 +150,6 @@ export function AdmitTenantForm({
                 <input className={FIELD} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
               </label>
             </div>
-
-            <PhotoField photoUrl={photoDataUrl} firstName={firstName} lastName={lastName} onChange={setPhotoDataUrl} />
 
             <div>
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile</p>
@@ -241,9 +241,9 @@ export function AdmitTenantForm({
                 </div>
               </div>
             </div>
-          </>
+          </div>
         ) : (
-          <label className="block text-sm font-medium text-zinc-700">
+          <label key="existing" className="block text-sm font-medium text-zinc-700 animate-slide-in-right">
             <span className="mb-1 block">Prospect</span>
             <div className="relative">
               <select

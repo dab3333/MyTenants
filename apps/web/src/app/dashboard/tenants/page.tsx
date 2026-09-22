@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
@@ -8,17 +9,20 @@ import { TenantsHeader } from "./TenantsHeader";
 
 export const metadata: Metadata = { title: "Tenants" };
 
+const PAGE_SIZE = 20;
+
 export default async function TenantsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; search?: string; buildingId?: string; roomId?: string }>;
+  searchParams: Promise<{ status?: string; search?: string; buildingId?: string; roomId?: string; page?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
 
-  const { status, search, buildingId, roomId } = await searchParams;
+  const { status, search, buildingId, roomId, page: pageParam } = await searchParams;
   const TENANT_STATUSES = ["PROSPECT", "ACTIVE", "MOVED_OUT"] as const;
   const validStatus = status && (TENANT_STATUSES as readonly string[]).includes(status) ? status : undefined;
+  const page = Math.max(1, Number(pageParam) || 1);
 
   const scoped = createScopedClient(session.user.organizationId);
 
@@ -28,21 +32,25 @@ export default async function TenantsListPage({
       ? { room: { floor: { buildingId } } }
       : {};
 
-  const [tenants, buildings, rooms] = await Promise.all([
+  const where = {
+    ...(validStatus ? { status: validStatus as (typeof TENANT_STATUSES)[number] } : {}),
+    ...(buildingId || roomId ? { tenancies: { some: { status: "ACTIVE" as const, ...roomFilter } } } : {}),
+    ...(search
+      ? {
+          OR: [
+            { firstName: { contains: search, mode: "insensitive" as const } },
+            { lastName: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+
+  const [tenants, total, buildings, rooms] = await Promise.all([
     scoped.tenant.findMany({
-      where: {
-        ...(validStatus ? { status: validStatus as (typeof TENANT_STATUSES)[number] } : {}),
-        ...(buildingId || roomId ? { tenancies: { some: { status: "ACTIVE", ...roomFilter } } } : {}),
-        ...(search
-          ? {
-              OR: [
-                { firstName: { contains: search, mode: "insensitive" } },
-                { lastName: { contains: search, mode: "insensitive" } },
-              ],
-            }
-          : {}),
-      },
+      where,
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       include: {
         tenancies: {
           where: { status: "ACTIVE" },
@@ -51,6 +59,7 @@ export default async function TenantsListPage({
         },
       },
     }),
+    scoped.tenant.count({ where }),
     scoped.building.findMany({ orderBy: { name: "asc" } }),
     scoped.room.findMany({
       where: buildingId ? { floor: { buildingId } } : {},
@@ -58,6 +67,18 @@ export default async function TenantsListPage({
       include: { floor: { include: { building: true } } },
     }),
   ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageLink = (targetPage: number) => {
+    const params = new URLSearchParams();
+    if (validStatus) params.set("status", validStatus);
+    if (search) params.set("search", search);
+    if (buildingId) params.set("buildingId", buildingId);
+    if (roomId) params.set("roomId", roomId);
+    if (targetPage > 1) params.set("page", String(targetPage));
+    const qs = params.toString();
+    return qs ? `?${qs}` : "?";
+  };
 
   const buildingOptions = buildings.map((building) => ({ id: building.id, label: building.name }));
   const roomOptions = rooms.map((room) => ({
@@ -67,11 +88,6 @@ export default async function TenantsListPage({
       : `${room.floor.building.name} / ${room.floor.label} / ${room.name}`,
   }));
 
-  const STATUS_BADGE: Record<string, string> = {
-    PROSPECT: "bg-amber-50 text-amber-700",
-    ACTIVE: "bg-green-50 text-green-700",
-    MOVED_OUT: "bg-zinc-100 text-zinc-500",
-  };
   const STATUS_LABEL: Record<string, string> = {
     PROSPECT: "Prospect",
     ACTIVE: "Active",
@@ -104,10 +120,7 @@ export default async function TenantsListPage({
                 Room
               </th>
               <th scope="col" className="px-5 py-3 font-medium">
-                Age
-              </th>
-              <th scope="col" className="px-5 py-3 font-medium">
-                Gender
+                Profile
               </th>
               <th scope="col" className="px-5 py-3 font-medium">
                 Contact
@@ -117,6 +130,8 @@ export default async function TenantsListPage({
           <tbody className="divide-y divide-zinc-100">
             {tenants.map((tenant) => {
               const room = tenant.tenancies[0]?.room;
+              const ageStr = tenant.age !== null ? String(tenant.age) : null;
+              const profile = ageStr && tenant.gender ? `${ageStr} · ${tenant.gender}` : ageStr ?? tenant.gender ?? "—";
               return (
                 <TenantRow
                   key={tenant.id}
@@ -125,18 +140,17 @@ export default async function TenantsListPage({
                   lastName={tenant.lastName}
                   photoUrl={tenant.photoUrl}
                   name={`${tenant.firstName} ${tenant.lastName}`}
-                  statusBadgeClass={STATUS_BADGE[tenant.status]}
+                  status={tenant.status}
                   statusLabel={STATUS_LABEL[tenant.status]}
                   roomLabel={room ? `${room.floor.building.name} / ${room.floor.label} / ${room.name}` : "—"}
-                  age={tenant.age !== null ? String(tenant.age) : "—"}
-                  gender={tenant.gender ?? "—"}
+                  profile={profile}
                   contact={tenant.phone ?? tenant.email ?? "—"}
                 />
               );
             })}
             {tenants.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-10 text-center text-zinc-500">
+                <td colSpan={5} className="px-5 py-10 text-center text-zinc-500">
                   No tenants found.
                 </td>
               </tr>
@@ -144,6 +158,43 @@ export default async function TenantsListPage({
           </tbody>
         </table>
       </div>
+
+      {total > 0 && (
+        <div className="mt-4 flex items-center justify-between text-sm text-zinc-500">
+          <p>
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+          </p>
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <Link
+                href={pageLink(page - 1)}
+                className="rounded border border-zinc-300 px-3 py-1.5 font-medium text-zinc-700 transition-colors hover:border-clay-400 hover:bg-zinc-50"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span className="cursor-not-allowed rounded border border-zinc-200 px-3 py-1.5 font-medium text-zinc-300">
+                Previous
+              </span>
+            )}
+            <span className="px-2">
+              Page {page} of {totalPages}
+            </span>
+            {page < totalPages ? (
+              <Link
+                href={pageLink(page + 1)}
+                className="rounded border border-zinc-300 px-3 py-1.5 font-medium text-zinc-700 transition-colors hover:border-clay-400 hover:bg-zinc-50"
+              >
+                Next
+              </Link>
+            ) : (
+              <span className="cursor-not-allowed rounded border border-zinc-200 px-3 py-1.5 font-medium text-zinc-300">
+                Next
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

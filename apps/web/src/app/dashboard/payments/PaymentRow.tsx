@@ -3,13 +3,33 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const DOT_CLASSES: Record<string, string> = {
+  PENDING: "bg-clay-300",
+  PARTIAL: "bg-clay-300",
+  PAID: "bg-clay-600",
+  OVERDUE: "bg-red-500",
+};
+
+const STATUS_TEXT_CLASSES: Record<string, string> = {
+  PENDING: "text-clay-700",
+  PARTIAL: "text-clay-700",
+  PAID: "text-zinc-900",
+  OVERDUE: "text-red-700 font-semibold",
+};
+
+const AMOUNT_CLASSES: Record<string, string> = {
+  PENDING: "text-zinc-900 font-semibold",
+  PARTIAL: "text-zinc-900 font-semibold",
+  PAID: "text-zinc-400",
+  OVERDUE: "text-red-700 font-semibold",
+};
+
 export function PaymentRow({
   invoiceId,
   tenantName,
   roomLabel,
   dueDate,
   amountLabel,
-  statusBadgeClass,
   status,
 }: {
   invoiceId: string;
@@ -17,7 +37,6 @@ export function PaymentRow({
   roomLabel: string;
   dueDate: string;
   amountLabel: string;
-  statusBadgeClass: string;
   status: string;
 }) {
   const router = useRouter();
@@ -40,11 +59,14 @@ export function PaymentRow({
       </td>
       <td className="px-5 py-3 text-zinc-500">{roomLabel}</td>
       <td className="px-5 py-3 text-zinc-500">{dueDate}</td>
-      <td className="px-5 py-3 text-zinc-500">{amountLabel}</td>
+      <td className={`px-5 py-3 ${AMOUNT_CLASSES[status]}`}>{amountLabel}</td>
       <td className="px-5 py-3">
-        <span data-testid="invoice-status" className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass}`}>
-          {status}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`h-[7px] w-[7px] shrink-0 rounded-full ${DOT_CLASSES[status]}`} />
+          <span data-testid="invoice-status" className={`text-sm font-medium ${STATUS_TEXT_CLASSES[status]}`}>
+            {status}
+          </span>
+        </div>
       </td>
     </tr>
   );

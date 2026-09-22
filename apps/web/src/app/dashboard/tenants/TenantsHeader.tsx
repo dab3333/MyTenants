@@ -17,7 +17,7 @@ export function TenantsHeader() {
             type="button"
             onClick={() => setIsAddingProspect((v) => !v)}
             aria-expanded={isAddingProspect}
-            className="inline-flex items-center gap-2 rounded border border-clay-300 bg-white px-4 py-1.5 font-medium text-clay-700 transition-colors hover:bg-clay-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1"
+            className="inline-flex items-center gap-2 rounded border border-zinc-300 bg-white px-4 py-1.5 font-medium text-zinc-700 transition-colors hover:border-clay-400 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1"
           >
             <PlusIcon />
             Add Prospect
@@ -33,7 +33,7 @@ export function TenantsHeader() {
       </div>
 
       {isAddingProspect && (
-        <div className="mt-4 rounded-lg border border-clay-200 bg-clay-50/40 p-4">
+        <div className="mt-4 animate-panel-in rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
           <AddProspectForm onDone={() => setIsAddingProspect(false)} />
         </div>
       )}

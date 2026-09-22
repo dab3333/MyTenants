@@ -4,17 +4,28 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TenantAvatar } from "./TenantAvatar";
 
+const DOT_CLASSES: Record<string, string> = {
+  PROSPECT: "bg-clay-300",
+  ACTIVE: "bg-clay-600",
+  MOVED_OUT: "border border-zinc-300 bg-white",
+};
+
+const TEXT_CLASSES: Record<string, string> = {
+  PROSPECT: "text-clay-700",
+  ACTIVE: "text-zinc-900",
+  MOVED_OUT: "text-zinc-400",
+};
+
 export function TenantRow({
   tenantId,
   firstName,
   lastName,
   photoUrl,
   name,
-  statusBadgeClass,
+  status,
   statusLabel,
   roomLabel,
-  age,
-  gender,
+  profile,
   contact,
 }: {
   tenantId: string;
@@ -22,11 +33,10 @@ export function TenantRow({
   lastName: string;
   photoUrl: string | null;
   name: string;
-  statusBadgeClass: string;
+  status: string;
   statusLabel: string;
   roomLabel: string;
-  age: string;
-  gender: string;
+  profile: string;
   contact: string;
 }) {
   const router = useRouter();
@@ -49,11 +59,13 @@ export function TenantRow({
         </Link>
       </td>
       <td className="px-5 py-3">
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass}`}>{statusLabel}</span>
+        <div className="flex items-center gap-2">
+          <span className={`h-[7px] w-[7px] shrink-0 rounded-full ${DOT_CLASSES[status]}`} />
+          <span className={`text-sm font-medium ${TEXT_CLASSES[status]}`}>{statusLabel}</span>
+        </div>
       </td>
       <td className="px-5 py-3 text-zinc-500">{roomLabel}</td>
-      <td className="px-5 py-3 text-zinc-500">{age}</td>
-      <td className="px-5 py-3 text-zinc-500">{gender}</td>
+      <td className="px-5 py-3 text-zinc-500">{profile}</td>
       <td className="px-5 py-3 text-zinc-500">{contact}</td>
     </tr>
   );

@@ -12,13 +12,6 @@ export const metadata: Metadata = { title: "Payments" };
 const INVOICE_STATUSES = ["PENDING", "PARTIAL", "PAID", "OVERDUE"] as const;
 const PAGE_SIZE = 20;
 
-const STATUS_BADGE: Record<(typeof INVOICE_STATUSES)[number], string> = {
-  PENDING: "bg-amber-50 text-amber-700",
-  PARTIAL: "bg-amber-50 text-amber-700",
-  PAID: "bg-green-50 text-green-700",
-  OVERDUE: "bg-red-50 text-red-700",
-};
-
 function parseDateParam(value: string | undefined): Date | null {
   if (!value) return null;
   const parsed = new Date(`${value}T00:00:00.000Z`);
@@ -115,7 +108,6 @@ export default async function PaymentsPage({
                   roomLabel={`${invoice.tenancy.room.floor.building.name} / ${invoice.tenancy.room.floor.label} / ${invoice.tenancy.room.name}`}
                   dueDate={invoice.dueDate.toISOString().slice(0, 10)}
                   amountLabel={`${formatCurrency(totalPaid)} / ${formatCurrency(Number(invoice.amountDue))}`}
-                  statusBadgeClass={STATUS_BADGE[invoice.status]}
                   status={invoice.status}
                 />
               );

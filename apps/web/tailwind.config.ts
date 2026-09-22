@@ -26,9 +26,24 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(4px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "slide-in-left": {
+          "0%": { opacity: "0", transform: "translateX(-14px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "slide-in-right": {
+          "0%": { opacity: "0", transform: "translateX(14px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "panel-in": {
+          "0%": { opacity: "0", transform: "translateY(-6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "page-in": "page-in 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-in-left": "slide-in-left 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-in-right": "slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "panel-in": "panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },
