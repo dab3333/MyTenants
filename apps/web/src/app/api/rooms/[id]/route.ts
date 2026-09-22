@@ -33,3 +33,25 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const room = await scoped.room.update({ where: { id }, data });
   return NextResponse.json({ room });
 }
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireOrgSession();
+  if (!session.ok) return session.response;
+
+  const { id } = await params;
+  const scoped = createScopedClient(session.organizationId);
+  const existing = await scoped.room.findFirst({
+    where: { id },
+    include: { tenancies: { where: { status: "ACTIVE" } } },
+  });
+  if (!existing) return NextResponse.json({ error: "Room not found" }, { status: 404 });
+  if (existing.tenancies.length > 0) {
+    return NextResponse.json(
+      { error: "This room has an active tenant. End their tenancy before deleting it." },
+      { status: 409 }
+    );
+  }
+
+  await scoped.room.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}

@@ -42,13 +42,16 @@ export function NotificationRow({
       <td className="px-5 py-3 text-zinc-500">{trigger}</td>
       <td className="px-5 py-3 text-zinc-500">{sentAt}</td>
       <td className="px-5 py-3">
-        <span
-          data-testid="notification-delivery-summary"
-          className="inline-flex items-center gap-1.5 text-xs font-medium"
-        >
-          <span className="rounded-full bg-green-50 px-2 py-0.5 text-green-700">{sentCount} sent</span>
+        <span data-testid="notification-delivery-summary" className="inline-flex items-center gap-4">
+          <span className="inline-flex items-center gap-1.5 text-sm text-zinc-900">
+            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-clay-600" />
+            {sentCount} sent
+          </span>
           {failedCount > 0 && (
-            <span className="rounded-full bg-red-50 px-2 py-0.5 text-red-700">{failedCount} failed</span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-700">
+              <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-red-500" />
+              {failedCount} failed
+            </span>
           )}
         </span>
       </td>

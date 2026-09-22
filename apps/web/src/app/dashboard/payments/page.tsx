@@ -25,12 +25,12 @@ function endOfUTCDay(date: Date): Date {
 export default async function PaymentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string; from?: string; to?: string }>;
+  searchParams: Promise<{ search?: string; status?: string; page?: string; from?: string; to?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
 
-  const { status, page: pageParam, from, to } = await searchParams;
+  const { search, status, page: pageParam, from, to } = await searchParams;
   const validStatus = status && (INVOICE_STATUSES as readonly string[]).includes(status) ? status : undefined;
   const page = Math.max(1, Number(pageParam) || 1);
   const fromDate = parseDateParam(from);
@@ -44,23 +44,36 @@ export default async function PaymentsPage({
       : {}),
   };
 
-  const [invoices, total] = await Promise.all([
-    scoped.invoice.findMany({
-      where,
-      orderBy: { dueDate: "asc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      include: {
-        payments: true,
-        tenancy: { include: { tenant: true, room: { include: { floor: { include: { building: true } } } } } },
-      },
-    }),
-    scoped.invoice.count({ where }),
-  ]);
+  // Search spans tenant name, room label, and the due date's displayed text — all
+  // relational/formatted values that don't reduce to a single indexable column, so
+  // matching is done in application code rather than as a Prisma `where` clause.
+  const allMatching = await scoped.invoice.findMany({
+    where,
+    orderBy: { dueDate: "asc" },
+    include: {
+      payments: true,
+      tenancy: { include: { tenant: true, room: { include: { floor: { include: { building: true } } } } } },
+    },
+  });
+
+  const searchTerm = search?.trim().toLowerCase();
+  const matchingInvoices = searchTerm
+    ? allMatching.filter((invoice) => {
+        const tenantName = `${invoice.tenancy.tenant.firstName} ${invoice.tenancy.tenant.lastName}`.toLowerCase();
+        const roomLabel =
+          `${invoice.tenancy.room.floor.building.name} / ${invoice.tenancy.room.floor.label} / ${invoice.tenancy.room.name}`.toLowerCase();
+        const dueDateLabel = invoice.dueDate.toISOString().slice(0, 10);
+        return tenantName.includes(searchTerm) || roomLabel.includes(searchTerm) || dueDateLabel.includes(searchTerm);
+      })
+    : allMatching;
+
+  const total = matchingInvoices.length;
+  const invoices = matchingInvoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const pageLink = (targetPage: number) => {
     const params = new URLSearchParams();
+    if (search) params.set("search", search);
     if (validStatus) params.set("status", validStatus);
     if (from) params.set("from", from);
     if (to) params.set("to", to);
@@ -71,12 +84,11 @@ export default async function PaymentsPage({
 
   return (
     <main className="p-6">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Payments</h1>
-        <PaymentFilters status={status ?? ""} from={from ?? ""} to={to ?? ""} />
-      </div>
+      <h1 className="mb-6 text-2xl font-semibold text-zinc-900 tracking-tight">Payments</h1>
 
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <PaymentFilters search={search ?? ""} status={status ?? ""} from={from ?? ""} to={to ?? ""} />
+
+      <div className="mt-6 overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
         <table className="w-full min-w-[42rem] text-left text-sm">
           <thead>
             <tr className="border-b border-zinc-200 text-xs font-medium uppercase tracking-wide text-zinc-500">

@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDownIcon } from "../icons";
+import { ChevronDownIcon, SearchIcon } from "../icons";
 
 const SEGMENT_SELECT =
-  "appearance-none cursor-pointer border-none bg-transparent py-3 pl-5 pr-8 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay-500";
+  "appearance-none cursor-pointer border-none bg-transparent py-3.5 pl-5 pr-8 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay-500";
 
 function segmentTextClass(isSet: boolean): string {
   return isSet
@@ -12,13 +13,29 @@ function segmentTextClass(isSet: boolean): string {
     : "font-medium text-zinc-700 transition-colors hover:text-clay-700";
 }
 
-export function PaymentFilters({ status, from, to }: { status: string; from: string; to: string }) {
+export function PaymentFilters({
+  search,
+  status,
+  from,
+  to,
+}: {
+  search: string;
+  status: string;
+  from: string;
+  to: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
+  const [searchValue, setSearchValue] = useState(search);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function navigate(next: { status?: string; from?: string; to?: string }) {
-    const merged = { status, from, to, ...next };
+  // Keep the input in sync if the URL changes from elsewhere (e.g. back/forward).
+  useEffect(() => setSearchValue(search), [search]);
+
+  function navigate(next: { search?: string; status?: string; from?: string; to?: string }) {
+    const merged = { search, status, from, to, ...next };
     const params = new URLSearchParams();
+    if (merged.search) params.set("search", merged.search);
     if (merged.status) params.set("status", merged.status);
     if (merged.from) params.set("from", merged.from);
     if (merged.to) params.set("to", merged.to);
@@ -27,8 +44,29 @@ export function PaymentFilters({ status, from, to }: { status: string; from: str
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }
 
+  function handleSearchChange(value: string) {
+    setSearchValue(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => navigate({ search: value }), 300);
+  }
+
   return (
     <div className="flex flex-wrap items-stretch overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <label className="flex flex-grow items-center gap-2.5 px-5 py-3.5">
+        <span className="sr-only">Search</span>
+        <span className="text-zinc-400">
+          <SearchIcon />
+        </span>
+        <input
+          value={searchValue}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search payments by tenant, room, or due date"
+          className="w-full min-w-0 border-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none"
+        />
+      </label>
+
+      <div className="my-2.5 hidden w-px shrink-0 bg-zinc-200 sm:block" />
+
       <div className="relative">
         <label className="sr-only" htmlFor="payment-filter-status">
           Status
@@ -50,7 +88,7 @@ export function PaymentFilters({ status, from, to }: { status: string; from: str
 
       <div className="my-2.5 hidden w-px shrink-0 bg-zinc-200 sm:block" />
 
-      <label className="flex items-center gap-2 px-5 py-3">
+      <label className="flex items-center gap-2 px-5 py-3.5">
         <span className="text-sm font-medium text-zinc-500">From</span>
         <input
           type="date"
@@ -62,7 +100,7 @@ export function PaymentFilters({ status, from, to }: { status: string; from: str
 
       <div className="my-2.5 hidden w-px shrink-0 bg-zinc-200 sm:block" />
 
-      <label className="flex items-center gap-2 px-5 py-3">
+      <label className="flex items-center gap-2 px-5 py-3.5">
         <span className="text-sm font-medium text-zinc-500">To</span>
         <input
           type="date"
@@ -78,7 +116,7 @@ export function PaymentFilters({ status, from, to }: { status: string; from: str
           <button
             type="button"
             onClick={() => navigate({ from: "", to: "" })}
-            className="px-5 py-3 text-sm font-medium text-zinc-500 transition-colors hover:text-clay-700"
+            className="px-5 py-3.5 text-sm font-medium text-zinc-500 transition-colors hover:text-clay-700"
           >
             Clear dates
           </button>

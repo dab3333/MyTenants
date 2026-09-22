@@ -54,5 +54,5 @@ test("send an announcement to all tenants and see it in history with delivery st
   await page.getByTestId("notification-row").getByRole("link").click();
   await expect(page).toHaveURL(/\/dashboard\/announcements\/.+/);
   await expect(page.getByTestId("recipient-row")).toContainText("Ana Announced");
-  await expect(page.getByTestId("delivery-status")).toHaveText("FAILED");
+  await expect(page.getByTestId("delivery-status")).toHaveText("Failed");
 });

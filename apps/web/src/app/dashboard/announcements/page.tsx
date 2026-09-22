@@ -9,6 +9,18 @@ export const metadata: Metadata = { title: "Announcements" };
 
 const CARD = "rounded-lg border border-zinc-200 bg-white p-6 shadow-sm";
 
+const SCOPE_LABEL: Record<string, string> = {
+  ALL: "All tenants",
+  BUILDING: "One building",
+  ROOM: "One room",
+  TENANT: "One tenant",
+};
+
+const TRIGGER_LABEL: Record<string, string> = {
+  MANUAL: "Manual",
+  AUTO_REMINDER: "Automatic reminder",
+};
+
 export default async function AnnouncementsPage() {
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
@@ -61,8 +73,8 @@ export default async function AnnouncementsPage() {
                   key={notification.id}
                   notificationId={notification.id}
                   subject={notification.subject}
-                  scope={notification.scope}
-                  trigger={notification.trigger}
+                  scope={SCOPE_LABEL[notification.scope] ?? notification.scope}
+                  trigger={TRIGGER_LABEL[notification.trigger] ?? notification.trigger}
                   sentAt={notification.sentAt.toISOString().slice(0, 10)}
                   sentCount={sentCount}
                   failedCount={failedCount}

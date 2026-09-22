@@ -70,6 +70,7 @@ export default async function BuildingDetailPage({ params }: { params: Promise<{
                     key={room.id}
                     roomId={room.id}
                     roomName={room.name}
+                    monthlyRate={room.monthlyRate}
                     occupied={room.occupied}
                     capacity={room.capacity}
                     status={status}

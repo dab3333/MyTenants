@@ -39,13 +39,19 @@ export function UserMenu({ name }: { name: string }) {
       </button>
 
       {open && (
-        <button
-          type="button"
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="absolute right-0 top-full z-10 mt-1.5 whitespace-nowrap rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-sm font-medium text-zinc-700 shadow-lg transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-10 mt-1.5 w-36 overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg"
         >
-          Log out
-        </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="block w-full px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            Log out
+          </button>
+        </div>
       )}
     </div>
   );

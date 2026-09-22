@@ -13,12 +13,14 @@ export function Modal({
   open,
   onClose,
   title,
+  headerActions,
   children,
   size = "md",
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  headerActions?: React.ReactNode;
   children: React.ReactNode;
   size?: "md" | "lg" | "xl";
 }) {
@@ -44,7 +46,10 @@ export function Modal({
       className={`modal-panel w-full ${SIZE_CLASSES[size]} rounded-lg border border-zinc-200 bg-white p-6 shadow-lg backdrop:bg-zinc-900/40`}
     >
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
+        <div className="flex items-center gap-1">
+          <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
+          {headerActions}
+        </div>
         <button
           type="button"
           onClick={onClose}

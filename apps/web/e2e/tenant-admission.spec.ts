@@ -55,7 +55,7 @@ test("admit a new tenant into a room, see occupancy update, then end the tenancy
   await page.getByRole("link", { name: "Jane Doe" }).click();
   await page.getByRole("button", { name: "End Tenancy" }).click();
   await page.locator("dialog").getByRole("button", { name: "End Tenancy" }).click();
-  await expect(page.getByText("MOVED_OUT")).toBeVisible();
+  await expect(page.getByText("Moved out")).toBeVisible();
 
   await page.goto("/dashboard/buildings");
   await page.getByRole("link", { name: "Admission Hall" }).click();

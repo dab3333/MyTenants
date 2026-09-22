@@ -7,10 +7,22 @@ import { PhotoPreviewModal } from "../PhotoPreviewModal";
 import { EditTenantForm } from "./EditTenantForm";
 import { EndTenancyButton } from "./EndTenancyButton";
 
-const STATUS_BADGE: Record<string, string> = {
-  PROSPECT: "bg-amber-50 text-amber-700",
-  ACTIVE: "bg-green-50 text-green-700",
-  MOVED_OUT: "bg-zinc-100 text-zinc-500",
+const STATUS_DOT: Record<string, string> = {
+  PROSPECT: "bg-clay-300",
+  ACTIVE: "bg-clay-600",
+  MOVED_OUT: "border border-zinc-300 bg-white",
+};
+
+const STATUS_TEXT: Record<string, string> = {
+  PROSPECT: "text-clay-700",
+  ACTIVE: "text-zinc-900",
+  MOVED_OUT: "text-zinc-400",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  PROSPECT: "Prospect",
+  ACTIVE: "Active",
+  MOVED_OUT: "Moved out",
 };
 
 function Field({ label, value }: { label: string; value: string | null }) {
@@ -79,9 +91,10 @@ export function TenantProfileCard({
           )}
           <div>
             <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{fullName}</h1>
-            <span className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE[status]}`}>
-              {status}
-            </span>
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <span className={`h-[7px] w-[7px] shrink-0 rounded-full ${STATUS_DOT[status]}`} />
+              <span className={`text-sm font-medium ${STATUS_TEXT[status]}`}>{STATUS_LABEL[status]}</span>
+            </div>
           </div>
         </div>
         <button

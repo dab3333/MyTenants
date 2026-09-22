@@ -82,7 +82,7 @@ export function NewInvoiceForm({ tenancyId }: { tenancyId: string }) {
       )}
       <button
         type="submit"
-        className="inline-flex items-center gap-2 rounded bg-clay-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
+        className="mt-2 inline-flex items-center gap-2 rounded bg-clay-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-clay-300"
         disabled={isSubmitting}
       >
         <PlusIcon />

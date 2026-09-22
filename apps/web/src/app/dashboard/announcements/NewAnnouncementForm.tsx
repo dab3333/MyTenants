@@ -69,8 +69,8 @@ export function NewAnnouncementForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="text-sm font-medium text-zinc-700">
+      <div className="flex flex-wrap gap-4">
+        <label className="w-56 text-sm font-medium text-zinc-700">
           <span className="mb-1 block">Scope</span>
           <div className="relative">
             <select
@@ -88,7 +88,7 @@ export function NewAnnouncementForm({
         </label>
 
         {scope === "BUILDING" && (
-          <label className="text-sm font-medium text-zinc-700">
+          <label className="w-64 text-sm font-medium text-zinc-700">
             <span className="mb-1 block">Building</span>
             <div className="relative">
               <select
@@ -109,7 +109,7 @@ export function NewAnnouncementForm({
         )}
 
         {scope === "ROOM" && (
-          <label className="text-sm font-medium text-zinc-700">
+          <label className="w-64 text-sm font-medium text-zinc-700">
             <span className="mb-1 block">Room</span>
             <div className="relative">
               <select
@@ -130,7 +130,7 @@ export function NewAnnouncementForm({
         )}
 
         {scope === "TENANT" && (
-          <label className="text-sm font-medium text-zinc-700">
+          <label className="w-64 text-sm font-medium text-zinc-700">
             <span className="mb-1 block">Tenant</span>
             <div className="relative">
               <select
@@ -151,20 +151,22 @@ export function NewAnnouncementForm({
         )}
       </div>
 
-      <label className="block text-sm font-medium text-zinc-700">
-        <span className="mb-1 block">Subject</span>
-        <input className={FIELD} value={subject} onChange={(e) => setSubject(e.target.value)} required />
-      </label>
-      <label className="block text-sm font-medium text-zinc-700">
-        <span className="mb-1 block">Body</span>
-        <textarea
-          className={FIELD}
-          rows={4}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          required
-        />
-      </label>
+      <div className="space-y-4 border-t border-zinc-100 pt-4">
+        <label className="block text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Subject</span>
+          <input className={FIELD} value={subject} onChange={(e) => setSubject(e.target.value)} required />
+        </label>
+        <label className="block text-sm font-medium text-zinc-700">
+          <span className="mb-1 block">Body</span>
+          <textarea
+            className={FIELD}
+            rows={4}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            required
+          />
+        </label>
+      </div>
 
       {error && (
         <p role="alert" className="text-sm text-red-600">

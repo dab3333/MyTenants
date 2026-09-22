@@ -7,16 +7,40 @@ import { NewInvoiceForm } from "./NewInvoiceForm";
 import { TenantProfileCard } from "./TenantProfileCard";
 import { formatCurrency } from "@/lib/currency";
 
-const TENANCY_STATUS_BADGE: Record<string, string> = {
-  ACTIVE: "bg-green-50 text-green-700",
-  ENDED: "bg-zinc-100 text-zinc-500",
+const TENANCY_DOT: Record<string, string> = {
+  ACTIVE: "bg-clay-600",
+  ENDED: "border border-zinc-300 bg-white",
 };
 
-const INVOICE_STATUS_BADGE: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700",
-  PARTIAL: "bg-amber-50 text-amber-700",
-  PAID: "bg-green-50 text-green-700",
-  OVERDUE: "bg-red-50 text-red-700",
+const TENANCY_TEXT: Record<string, string> = {
+  ACTIVE: "text-zinc-900",
+  ENDED: "text-zinc-400",
+};
+
+const TENANCY_LABEL: Record<string, string> = {
+  ACTIVE: "Active",
+  ENDED: "Ended",
+};
+
+const INVOICE_DOT: Record<string, string> = {
+  PENDING: "bg-clay-300",
+  PARTIAL: "bg-clay-300",
+  PAID: "bg-clay-600",
+  OVERDUE: "bg-red-500",
+};
+
+const INVOICE_TEXT: Record<string, string> = {
+  PENDING: "text-clay-700",
+  PARTIAL: "text-clay-700",
+  PAID: "text-zinc-900",
+  OVERDUE: "font-semibold text-red-700",
+};
+
+const INVOICE_LABEL: Record<string, string> = {
+  PENDING: "Pending",
+  PARTIAL: "Partial",
+  PAID: "Paid",
+  OVERDUE: "Overdue",
 };
 
 const CARD = "rounded-lg border border-zinc-200 bg-white p-6 shadow-sm";
@@ -89,22 +113,23 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
           {tenant.tenancies.length === 0 ? (
               <p className="text-zinc-500">No tenancy history yet.</p>
             ) : (
-              <ul className="space-y-6">
-                {tenant.tenancies.map((tenancy) => (
-                  <li
+              <div>
+                {tenant.tenancies.map((tenancy, index) => (
+                  <div
                     key={tenancy.id}
                     data-testid="tenancy-row"
-                    className="rounded-lg border border-zinc-100 p-4"
+                    className={index > 0 ? "mt-6 border-t border-zinc-100 pt-6" : ""}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="font-medium text-zinc-900">
                         {tenancy.room.floor.building.name} / {tenancy.room.floor.label} / {tenancy.room.name}
                       </span>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${TENANCY_STATUS_BADGE[tenancy.status]}`}
-                      >
-                        {tenancy.status}
-                      </span>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <span className={`h-[7px] w-[7px] shrink-0 rounded-full ${TENANCY_DOT[tenancy.status]}`} />
+                        <span className={`text-sm font-medium ${TENANCY_TEXT[tenancy.status]}`}>
+                          {TENANCY_LABEL[tenancy.status]}
+                        </span>
+                      </div>
                     </div>
 
                     <h3 className="mb-2 mt-4 text-xs font-medium uppercase tracking-wide text-zinc-500">Invoices</h3>
@@ -126,12 +151,13 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
                               >
                                 {invoice.periodStart.toISOString().slice(0, 10)} – {invoice.periodEnd.toISOString().slice(0, 10)}
                               </Link>
-                              <span className="flex items-center gap-2 text-zinc-500">
+                              <span className="flex items-center gap-3 text-zinc-500">
                                 {formatCurrency(totalPaid)} / {formatCurrency(Number(invoice.amountDue))}
-                                <span
-                                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${INVOICE_STATUS_BADGE[invoice.status]}`}
-                                >
-                                  {invoice.status}
+                                <span className="flex items-center gap-1.5">
+                                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${INVOICE_DOT[invoice.status]}`} />
+                                  <span className={`text-xs ${INVOICE_TEXT[invoice.status]}`}>
+                                    {INVOICE_LABEL[invoice.status]}
+                                  </span>
                                 </span>
                               </span>
                             </li>
@@ -143,9 +169,9 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
                     <div className="mt-4 border-t border-zinc-100 pt-4">
                       <NewInvoiceForm tenancyId={tenancy.id} />
                     </div>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
         </div>
       </div>

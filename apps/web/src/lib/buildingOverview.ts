@@ -5,6 +5,8 @@ export type RoomTenant = {
   firstName: string;
   lastName: string;
   photoUrl: string | null;
+  age: number | null;
+  gender: string | null;
 };
 
 export type RoomOccupancy = {
@@ -60,6 +62,8 @@ export async function getBuildingOverview(
       firstName: tenancy.tenant.firstName,
       lastName: tenancy.tenant.lastName,
       photoUrl: tenancy.tenant.photoUrl,
+      age: tenancy.tenant.age,
+      gender: tenancy.tenant.gender,
     });
     tenantsByRoomId.set(tenancy.roomId, list);
   }

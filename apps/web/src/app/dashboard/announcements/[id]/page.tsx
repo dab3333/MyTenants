@@ -3,12 +3,34 @@ import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 
-const DELIVERY_BADGE: Record<"SENT" | "FAILED", string> = {
-  SENT: "bg-green-50 text-green-700",
-  FAILED: "bg-red-50 text-red-700",
+const DELIVERY_DOT: Record<"SENT" | "FAILED", string> = {
+  SENT: "bg-clay-600",
+  FAILED: "bg-red-500",
+};
+
+const DELIVERY_TEXT: Record<"SENT" | "FAILED", string> = {
+  SENT: "text-zinc-900",
+  FAILED: "font-semibold text-red-700",
+};
+
+const DELIVERY_LABEL: Record<"SENT" | "FAILED", string> = {
+  SENT: "Sent",
+  FAILED: "Failed",
 };
 
 const CARD = "rounded-lg border border-zinc-200 bg-white p-6 shadow-sm";
+
+const SCOPE_LABEL: Record<string, string> = {
+  ALL: "All tenants",
+  BUILDING: "One building",
+  ROOM: "One room",
+  TENANT: "One tenant",
+};
+
+const TRIGGER_LABEL: Record<string, string> = {
+  MANUAL: "Manual",
+  AUTO_REMINDER: "Automatic reminder",
+};
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const session = await auth();
@@ -36,7 +58,8 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{notification.subject}</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          {notification.scope} — {notification.trigger} — {notification.sentAt.toISOString().slice(0, 10)}
+          {SCOPE_LABEL[notification.scope] ?? notification.scope} · {TRIGGER_LABEL[notification.trigger] ?? notification.trigger} ·{" "}
+          {notification.sentAt.toISOString().slice(0, 10)}
         </p>
       </div>
 
@@ -72,9 +95,10 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
                   <div className="flex items-center gap-2">
                     <span
                       data-testid="delivery-status"
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${DELIVERY_BADGE[recipient.deliveryStatus]}`}
+                      className={`inline-flex items-center gap-1.5 text-sm ${DELIVERY_TEXT[recipient.deliveryStatus]}`}
                     >
-                      {recipient.deliveryStatus}
+                      <span className={`h-[7px] w-[7px] shrink-0 rounded-full ${DELIVERY_DOT[recipient.deliveryStatus]}`} />
+                      {DELIVERY_LABEL[recipient.deliveryStatus]}
                     </span>
                     {recipient.failureReason && (
                       <span className="text-xs text-zinc-500">{recipient.failureReason}</span>

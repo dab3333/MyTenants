@@ -249,6 +249,66 @@ async function main() {
   const diego = await makeTenant("Diego", "Aquino", "diego.aquino@example.com", "0917-100-0013");
   await prisma.tenant.update({ where: { id: diego.id }, data: { status: "PROSPECT" } });
 
+  // --- Announcements: a few sent notifications for the Announcements history/detail pages ---
+  const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1000);
+
+  const makeNotification = async (
+    subject: string,
+    body: string,
+    scope: "ALL" | "BUILDING" | "ROOM" | "TENANT",
+    trigger: "MANUAL" | "AUTO_REMINDER",
+    sentAt: Date,
+    recipients: { tenant: { id: string; email: string | null }; deliveryStatus: "SENT" | "FAILED"; failureReason?: string }[]
+  ) => {
+    const notification = await prisma.notification.create({
+      data: { organizationId: orgId, subject, body, scope, trigger, sentAt },
+    });
+    for (const r of recipients) {
+      await prisma.notificationRecipient.create({
+        data: {
+          organizationId: orgId,
+          notificationId: notification.id,
+          tenantId: r.tenant.id,
+          deliveryStatus: r.deliveryStatus,
+          recipientEmail: r.deliveryStatus === "SENT" ? r.tenant.email : null,
+          failureReason: r.failureReason,
+        },
+      });
+    }
+  };
+
+  const allActiveTenants = [tAna, tMiguelS, tLiza, tPaolo, tCarmela, tJosef, tNadia, tMiguelC, tRamon, tBea, tKen];
+  await makeNotification(
+    "Welcome to Demo Properties",
+    "Hi! Just a quick note to welcome everyone to the building. Reach out to the office if you need anything.",
+    "ALL",
+    "MANUAL",
+    daysAgo(21),
+    allActiveTenants.map((tenant) => ({ tenant, deliveryStatus: "SENT" as const }))
+  );
+
+  await makeNotification(
+    "September rent due reminder",
+    "This is a reminder that rent for this month is due on the 5th. Thank you!",
+    "BUILDING",
+    "AUTO_REMINDER",
+    daysAgo(5),
+    [
+      { tenant: tRamon, deliveryStatus: "SENT" },
+      { tenant: tBea, deliveryStatus: "SENT" },
+      { tenant: tKen, deliveryStatus: "FAILED", failureReason: "Mailbox not found" },
+    ]
+  );
+
+  await makeNotification(
+    "Water interruption notice",
+    "Water service in your room will be briefly interrupted tomorrow morning for scheduled maintenance.",
+    "TENANT",
+    "MANUAL",
+    daysAgo(1),
+    [{ tenant: tCarmela, deliveryStatus: "SENT" }]
+  );
+
   console.log("Seed complete.");
   console.log(`Log in at /login with ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
 }
