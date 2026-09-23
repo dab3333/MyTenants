@@ -82,3 +82,26 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const tenant = await scoped.tenant.update({ where: { id }, data });
   return NextResponse.json({ tenant });
 }
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireOrgSession();
+  if (!session.ok) return session.response;
+  const { id } = await params;
+
+  const scoped = createScopedClient(session.organizationId);
+  const existing = await scoped.tenant.findFirst({
+    where: { id },
+    include: { tenancies: { select: { id: true } } },
+  });
+  if (!existing) return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
+  if (existing.status !== "PROSPECT") {
+    return NextResponse.json({ error: "Only prospects can be removed this way" }, { status: 409 });
+  }
+  if (existing.tenancies.length > 0) {
+    return NextResponse.json({ error: "This tenant already has tenancy history" }, { status: 409 });
+  }
+
+  await deleteTenantPhoto(existing.photoUrl);
+  await scoped.tenant.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}

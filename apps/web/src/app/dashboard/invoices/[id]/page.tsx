@@ -5,14 +5,29 @@ import { createScopedClient } from "@mytenants/db";
 import { RecordPaymentForm } from "./RecordPaymentForm";
 import { EditInvoiceForm } from "./EditInvoiceForm";
 import { formatCurrency } from "@/lib/currency";
+import { formatDate } from "@/lib/date";
 
 type InvoiceStatus = "PENDING" | "PARTIAL" | "PAID" | "OVERDUE";
 
-const STATUS_BADGE: Record<InvoiceStatus, string> = {
-  PENDING: "bg-amber-50 text-amber-700",
-  PARTIAL: "bg-amber-50 text-amber-700",
-  PAID: "bg-green-50 text-green-700",
-  OVERDUE: "bg-red-50 text-red-700",
+const STATUS_DOT: Record<InvoiceStatus, string> = {
+  PENDING: "bg-clay-300",
+  PARTIAL: "bg-clay-300",
+  PAID: "bg-clay-600",
+  OVERDUE: "bg-red-500",
+};
+
+const STATUS_TEXT: Record<InvoiceStatus, string> = {
+  PENDING: "text-clay-700",
+  PARTIAL: "text-clay-700",
+  PAID: "text-zinc-900",
+  OVERDUE: "font-semibold text-red-700",
+};
+
+const STATUS_LABEL: Record<InvoiceStatus, string> = {
+  PENDING: "Pending",
+  PARTIAL: "Partial",
+  PAID: "Paid",
+  OVERDUE: "Overdue",
 };
 
 const CARD = "rounded-lg border border-zinc-200 bg-white p-6 shadow-sm";
@@ -59,12 +74,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">
           Invoice — {invoice.tenancy.tenant.firstName} {invoice.tenancy.tenant.lastName}
         </h1>
-        <span
-          data-testid="invoice-status"
-          className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE[invoice.status]}`}
-        >
-          {invoice.status}
-        </span>
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <span className={`h-[7px] w-[7px] shrink-0 rounded-full ${STATUS_DOT[invoice.status]}`} />
+          <span data-testid="invoice-status" className={`text-sm font-medium ${STATUS_TEXT[invoice.status]}`}>
+            {STATUS_LABEL[invoice.status]}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
@@ -82,12 +97,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-zinc-500">Period</dt>
                 <dd className="font-medium text-zinc-900">
-                  {invoice.periodStart.toISOString().slice(0, 10)} – {invoice.periodEnd.toISOString().slice(0, 10)}
+                  {formatDate(invoice.periodStart)} – {formatDate(invoice.periodEnd)}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-zinc-500">Due</dt>
-                <dd className="font-medium text-zinc-900">{invoice.dueDate.toISOString().slice(0, 10)}</dd>
+                <dd className="font-medium text-zinc-900">{formatDate(invoice.dueDate)}</dd>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-zinc-500">Amount due</dt>
@@ -124,7 +139,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   data-testid="payment-row"
                   className="flex flex-wrap items-center justify-between gap-2 rounded border border-zinc-100 px-3 py-2 text-sm"
                 >
-                  <span className="font-medium text-zinc-900">{payment.paidAt.toISOString().slice(0, 10)}</span>
+                  <span className="font-medium text-zinc-900">{formatDate(payment.paidAt)}</span>
                   <span className="text-zinc-500">{formatCurrency(Number(payment.amountPaid))}</span>
                   <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
                     {payment.method}

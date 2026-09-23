@@ -63,11 +63,27 @@ This only runs if no demo user exists yet; it logs the demo login (`demo@mytenan
 
 ### 6. (Optional) Real email delivery
 
-By default, tenant announcement emails just log to the `web` container's output instead of sending (no-op). To send real emails via [Resend](https://resend.com):
+By default, tenant announcement and rent-reminder emails just log to the `web`/`worker` containers' output instead of sending (no-op). Two ways to turn on real delivery — set whichever one in `.env`, then `docker compose up -d --build`:
+
+**Gmail SMTP** (no domain required — good if you don't own one):
+
+1. Turn on [2-Step Verification](https://myaccount.google.com/security) on the Gmail account you want to send from, then create an [App Password](https://myaccount.google.com/apppasswords).
+2. Add to `.env`:
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=you@gmail.com
+   SMTP_PASS=<the 16-character app password>
+   SMTP_FROM=MyTenants <you@gmail.com>
+   ```
+   Regular Gmail accounts cap out around 500 sends/day, which is generally plenty for a single landlord's tenant list.
+
+**Resend** (requires a domain you can verify with them):
 
 1. Add `RESEND_API_KEY=<your key>` to `.env`.
-2. Add `RESEND_API_KEY: ${RESEND_API_KEY}` under the `web` service's `environment` in `docker-compose.yml`.
-3. `docker compose up -d --build web`.
+2. Update the hardcoded `FROM_ADDRESS` in `packages/db/src/emailSender.ts` to an address on your verified domain (the placeholder `notifications@mytenants.example` won't send).
+
+If both `SMTP_*` and `RESEND_API_KEY` are set, SMTP takes priority.
 
 ### Updating to a new version
 

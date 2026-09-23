@@ -54,7 +54,7 @@ test("create a manual invoice, record a payment, and see it settle as PAID", asy
   await expect(page).toHaveURL(/\/dashboard\/invoices\/.+/);
   await page.getByLabel("Amount paid").fill("3000");
   await page.getByRole("button", { name: "Record Payment" }).click();
-  await expect(page.getByTestId("invoice-status")).toHaveText("PAID");
+  await expect(page.getByTestId("invoice-status")).toHaveText("Paid");
 
   // The org-wide payments view should reflect the settled invoice.
   await page.goto("/dashboard/payments?status=PAID");

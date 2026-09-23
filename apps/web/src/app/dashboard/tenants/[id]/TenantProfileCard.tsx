@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ConfirmModal } from "../../ConfirmModal";
 import { Modal } from "../../Modal";
+import { MoreIcon, UserPlusIcon } from "../../icons";
 import { TenantAvatar } from "../TenantAvatar";
 import { PhotoPreviewModal } from "../PhotoPreviewModal";
 import { EditTenantForm } from "./EditTenantForm";
@@ -69,9 +73,45 @@ export function TenantProfileCard({
   currentRoomLabel: string | null;
   activeTenancyId: string | null;
 }) {
+  const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const fullName = `${firstName} ${lastName}`;
+  const isProspect = status === "PROSPECT";
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handlePointerDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [menuOpen]);
+
+  async function handleRemoveConfirm() {
+    if (isRemoving) return;
+    setIsRemoving(true);
+    setRemoveError(null);
+
+    try {
+      const res = await fetch(`/api/tenants/${tenantId}`, { method: "DELETE" });
+      if (res.ok) {
+        router.push("/dashboard/tenants");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setRemoveError(data.error ?? "Failed to remove prospect");
+      }
+    } catch {
+      setRemoveError("Failed to remove prospect");
+    } finally {
+      setIsRemoving(false);
+    }
+  }
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
@@ -97,13 +137,57 @@ export function TenantProfileCard({
             </div>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setEditOpen(true)}
-          className="rounded border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:border-clay-400 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1"
-        >
-          Edit
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setEditOpen(true)}
+            className="rounded border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:border-clay-400 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1"
+          >
+            Edit
+          </button>
+          {isProspect && (
+            <Link
+              href={`/dashboard/tenants/admit?prospectId=${tenantId}`}
+              className="inline-flex items-center gap-1.5 rounded bg-clay-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-clay-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-1"
+            >
+              <UserPlusIcon />
+              Admit Tenant
+            </Link>
+          )}
+          {isProspect && (
+            <div ref={menuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="Prospect options"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
+              >
+                <MoreIcon />
+              </button>
+              {menuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-10 mt-1 w-40 overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setRemoveError(null);
+                      setRemoveOpen(true);
+                    }}
+                    className="block w-full px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+                  >
+                    Remove Prospect
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {currentRoomLabel && (
@@ -159,6 +243,18 @@ export function TenantProfileCard({
           name={fullName}
         />
       )}
+
+      <ConfirmModal
+        open={removeOpen}
+        title="Remove Prospect"
+        message={`Remove "${fullName}"? This can't be undone.`}
+        confirmLabel="Remove"
+        destructive
+        isSubmitting={isRemoving}
+        error={removeError}
+        onConfirm={handleRemoveConfirm}
+        onCancel={() => setRemoveOpen(false)}
+      />
     </div>
   );
 }

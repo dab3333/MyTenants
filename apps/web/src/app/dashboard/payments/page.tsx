@@ -6,6 +6,7 @@ import { createScopedClient } from "@mytenants/db";
 import { PaymentFilters } from "./PaymentFilters";
 import { PaymentRow } from "./PaymentRow";
 import { formatCurrency } from "@/lib/currency";
+import { formatDate } from "@/lib/date";
 
 export const metadata: Metadata = { title: "Payments" };
 
@@ -62,7 +63,7 @@ export default async function PaymentsPage({
         const tenantName = `${invoice.tenancy.tenant.firstName} ${invoice.tenancy.tenant.lastName}`.toLowerCase();
         const roomLabel =
           `${invoice.tenancy.room.floor.building.name} / ${invoice.tenancy.room.floor.label} / ${invoice.tenancy.room.name}`.toLowerCase();
-        const dueDateLabel = invoice.dueDate.toISOString().slice(0, 10);
+        const dueDateLabel = formatDate(invoice.dueDate);
         return tenantName.includes(searchTerm) || roomLabel.includes(searchTerm) || dueDateLabel.includes(searchTerm);
       })
     : allMatching;
@@ -118,7 +119,7 @@ export default async function PaymentsPage({
                   invoiceId={invoice.id}
                   tenantName={`${invoice.tenancy.tenant.firstName} ${invoice.tenancy.tenant.lastName}`}
                   roomLabel={`${invoice.tenancy.room.floor.building.name} / ${invoice.tenancy.room.floor.label} / ${invoice.tenancy.room.name}`}
-                  dueDate={invoice.dueDate.toISOString().slice(0, 10)}
+                  dueDate={formatDate(invoice.dueDate)}
                   amountLabel={`${formatCurrency(totalPaid)} / ${formatCurrency(Number(invoice.amountDue))}`}
                   status={invoice.status}
                 />

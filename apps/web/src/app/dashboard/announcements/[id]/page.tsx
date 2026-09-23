@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
+import { formatDate } from "@/lib/date";
 
 const DELIVERY_DOT: Record<"SENT" | "FAILED", string> = {
   SENT: "bg-clay-600",
@@ -59,7 +60,7 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
         <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">{notification.subject}</h1>
         <p className="mt-1 text-sm text-zinc-500">
           {SCOPE_LABEL[notification.scope] ?? notification.scope} · {TRIGGER_LABEL[notification.trigger] ?? notification.trigger} ·{" "}
-          {notification.sentAt.toISOString().slice(0, 10)}
+          {formatDate(notification.sentAt)}
         </p>
       </div>
 

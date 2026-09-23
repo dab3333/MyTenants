@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { createScopedClient } from "@mytenants/db";
 import { NewAnnouncementForm } from "./NewAnnouncementForm";
 import { NotificationRow } from "./NotificationRow";
+import { formatDate } from "@/lib/date";
 
 export const metadata: Metadata = { title: "Announcements" };
 
@@ -75,7 +76,7 @@ export default async function AnnouncementsPage() {
                   subject={notification.subject}
                   scope={SCOPE_LABEL[notification.scope] ?? notification.scope}
                   trigger={TRIGGER_LABEL[notification.trigger] ?? notification.trigger}
-                  sentAt={notification.sentAt.toISOString().slice(0, 10)}
+                  sentAt={formatDate(notification.sentAt)}
                   sentCount={sentCount}
                   failedCount={failedCount}
                 />

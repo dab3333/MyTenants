@@ -4,7 +4,7 @@ vi.mock("@/lib/auth", () => ({ auth: vi.fn() }));
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@mytenants/db";
-import { GET, PATCH } from "../route";
+import { GET, PATCH, DELETE } from "../route";
 
 function sessionFor(organizationId: string) {
   vi.mocked(auth).mockResolvedValue({
@@ -66,6 +66,90 @@ describe("GET/PATCH /api/tenants/[id]", () => {
       new Request("http://localhost", { method: "PATCH", body: JSON.stringify({ firstName: "Hijacked" }) }),
       { params: Promise.resolve({ id: tenantB.id }) }
     );
+    expect(res.status).toBe(404);
+  });
+});
+
+describe("DELETE /api/tenants/[id]", () => {
+  beforeEach(() => {
+    vi.mocked(auth).mockReset();
+  });
+
+  it("removes a prospect with no tenancy history", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Prospect Delete" } });
+    const tenant = await prisma.tenant.create({
+      data: { organizationId: org.id, firstName: "Diego", lastName: "Aquino", status: "PROSPECT" },
+    });
+
+    sessionFor(org.id);
+    const res = await DELETE(new Request("http://localhost", { method: "DELETE" }), {
+      params: Promise.resolve({ id: tenant.id }),
+    });
+
+    expect(res.status).toBe(200);
+    const found = await prisma.tenant.findFirst({ where: { id: tenant.id } });
+    expect(found).toBeNull();
+  });
+
+  it("refuses to remove a tenant that is not a prospect", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Prospect Delete Status Guard" } });
+    const tenant = await prisma.tenant.create({
+      data: { organizationId: org.id, firstName: "Active", lastName: "Tenant", status: "ACTIVE" },
+    });
+
+    sessionFor(org.id);
+    const res = await DELETE(new Request("http://localhost", { method: "DELETE" }), {
+      params: Promise.resolve({ id: tenant.id }),
+    });
+
+    expect(res.status).toBe(409);
+    const data = await res.json();
+    expect(data.error).toBe("Only prospects can be removed this way");
+  });
+
+  it("refuses to remove a prospect that already has tenancy history", async () => {
+    const org = await prisma.organization.create({ data: { name: "Org Prospect Delete Tenancy Guard" } });
+    const building = await prisma.building.create({ data: { organizationId: org.id, name: "Hall" } });
+    const floor = await prisma.floor.create({ data: { organizationId: org.id, buildingId: building.id, label: "1F" } });
+    const room = await prisma.room.create({
+      data: { organizationId: org.id, floorId: floor.id, name: "101", capacity: 2, monthlyRate: "3000.00" },
+    });
+    const tenant = await prisma.tenant.create({
+      data: { organizationId: org.id, firstName: "Was", lastName: "Prospect", status: "PROSPECT" },
+    });
+    await prisma.tenancy.create({
+      data: {
+        organizationId: org.id,
+        tenantId: tenant.id,
+        roomId: room.id,
+        startDate: new Date(),
+        monthlyRate: "3000.00",
+        depositAmount: "3000.00",
+        status: "ENDED",
+      },
+    });
+
+    sessionFor(org.id);
+    const res = await DELETE(new Request("http://localhost", { method: "DELETE" }), {
+      params: Promise.resolve({ id: tenant.id }),
+    });
+
+    expect(res.status).toBe(409);
+    const data = await res.json();
+    expect(data.error).toBe("This tenant already has tenancy history");
+  });
+
+  it("returns 404 when removing another organization's tenant", async () => {
+    const orgA = await prisma.organization.create({ data: { name: "Org A Prospect Delete Guard" } });
+    const orgB = await prisma.organization.create({ data: { name: "Org B Prospect Delete Guard" } });
+    const tenantB = await prisma.tenant.create({
+      data: { organizationId: orgB.id, firstName: "B", lastName: "Prospect", status: "PROSPECT" },
+    });
+
+    sessionFor(orgA.id);
+    const res = await DELETE(new Request("http://localhost", { method: "DELETE" }), {
+      params: Promise.resolve({ id: tenantB.id }),
+    });
     expect(res.status).toBe(404);
   });
 });

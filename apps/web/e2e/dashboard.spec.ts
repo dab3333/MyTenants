@@ -55,7 +55,7 @@ test("dashboard shows income, tenant count, occupancy, and overdue widgets, and 
   await expect(page).toHaveURL(/\/dashboard\/invoices\/.+/);
   await page.getByLabel("Amount paid").fill("3000");
   await page.getByRole("button", { name: "Record Payment" }).click();
-  await expect(page.getByTestId("invoice-status")).toHaveText("PAID");
+  await expect(page.getByTestId("invoice-status")).toHaveText("Paid");
 
   // Admit a second tenant with an unpaid invoice, then mark it OVERDUE directly —
   // this transition only otherwise happens via apps/worker's daily cron, which

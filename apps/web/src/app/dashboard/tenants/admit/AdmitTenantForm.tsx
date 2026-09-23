@@ -20,16 +20,19 @@ export function AdmitTenantForm({
   availableRooms,
   prospects,
   initialRoomId,
+  initialProspectId,
 }: {
   availableRooms: AvailableRoom[];
   prospects: Prospect[];
   initialRoomId?: string;
+  initialProspectId?: string;
 }) {
   const router = useRouter();
   const initialRoom = availableRooms.find((room) => room.roomId === initialRoomId) ?? availableRooms[0];
-  const [mode, setMode] = useState<"new" | "existing">("new");
+  const lockedProspect = initialProspectId ? prospects.find((p) => p.id === initialProspectId) : undefined;
+  const [mode, setMode] = useState<"new" | "existing">(lockedProspect ? "existing" : "new");
   const [roomId, setRoomId] = useState(initialRoom?.roomId ?? "");
-  const [prospectId, setProspectId] = useState(prospects[0]?.id ?? "");
+  const [prospectId, setProspectId] = useState(lockedProspect?.id ?? prospects[0]?.id ?? "");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
@@ -112,29 +115,31 @@ export function AdmitTenantForm({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
       <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <span className="mb-2 block text-sm font-medium text-zinc-700">Tenant</span>
-          <div className="inline-flex rounded-lg border border-zinc-300 p-1">
-            <button
-              type="button"
-              onClick={() => setMode("new")}
-              className={`${SEGMENT_BASE} ${mode === "new" ? "bg-clay-600 text-white" : "text-zinc-600 hover:text-zinc-900"}`}
-            >
-              New tenant
-            </button>
-            <button
-              type="button"
-              onClick={() => hasProspects && setMode("existing")}
-              disabled={!hasProspects}
-              title={hasProspects ? undefined : "No prospects yet"}
-              className={`${SEGMENT_BASE} ${mode === "existing" ? "bg-clay-600 text-white" : "text-zinc-600 hover:text-zinc-900"} ${
-                hasProspects ? "" : "cursor-not-allowed opacity-40"
-              }`}
-            >
-              Existing prospect
-            </button>
+        {!lockedProspect && (
+          <div>
+            <span className="mb-2 block text-sm font-medium text-zinc-700">Tenant</span>
+            <div className="inline-flex rounded-lg border border-zinc-300 p-1">
+              <button
+                type="button"
+                onClick={() => setMode("new")}
+                className={`${SEGMENT_BASE} ${mode === "new" ? "bg-clay-600 text-white" : "text-zinc-600 hover:text-zinc-900"}`}
+              >
+                New tenant
+              </button>
+              <button
+                type="button"
+                onClick={() => hasProspects && setMode("existing")}
+                disabled={!hasProspects}
+                title={hasProspects ? undefined : "No prospects yet"}
+                className={`${SEGMENT_BASE} ${mode === "existing" ? "bg-clay-600 text-white" : "text-zinc-600 hover:text-zinc-900"} ${
+                  hasProspects ? "" : "cursor-not-allowed opacity-40"
+                }`}
+              >
+                Existing prospect
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {mode === "new" ? (
           <div key="new" className="space-y-6 animate-slide-in-left">
@@ -241,6 +246,13 @@ export function AdmitTenantForm({
                 </div>
               </div>
             </div>
+          </div>
+        ) : lockedProspect ? (
+          <div>
+            <span className="mb-1 block text-sm font-medium text-zinc-700">Prospect</span>
+            <p className="rounded border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-zinc-900">
+              {lockedProspect.firstName} {lockedProspect.lastName}
+            </p>
           </div>
         ) : (
           <label key="existing" className="block text-sm font-medium text-zinc-700 animate-slide-in-right">

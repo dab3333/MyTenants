@@ -12,18 +12,20 @@ export const metadata: Metadata = { title: "Admit Tenant" };
 export default async function AdmitTenantPage({
   searchParams,
 }: {
-  searchParams: Promise<{ roomId?: string }>;
+  searchParams: Promise<{ roomId?: string; prospectId?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.organizationId) redirect("/login");
 
-  const { roomId } = await searchParams;
+  const { roomId, prospectId } = await searchParams;
   const scoped = createScopedClient(session.user.organizationId);
   const [availableRooms, prospects] = await Promise.all([
     getAvailableRooms(scoped),
     scoped.tenant.findMany({ where: { status: "PROSPECT" }, orderBy: { createdAt: "asc" } }),
   ]);
   const initialRoomId = roomId && availableRooms.some((room) => room.roomId === roomId) ? roomId : undefined;
+  const initialProspectId =
+    prospectId && prospects.some((p) => p.id === prospectId) ? prospectId : undefined;
 
   return (
     <main className="p-6">
@@ -42,7 +44,12 @@ export default async function AdmitTenantPage({
           </Link>
         </div>
       ) : (
-        <AdmitTenantForm availableRooms={availableRooms} prospects={prospects} initialRoomId={initialRoomId} />
+        <AdmitTenantForm
+          availableRooms={availableRooms}
+          prospects={prospects}
+          initialRoomId={initialRoomId}
+          initialProspectId={initialProspectId}
+        />
       )}
     </main>
   );

@@ -6,6 +6,7 @@ import { createScopedClient } from "@mytenants/db";
 import { NewInvoiceForm } from "./NewInvoiceForm";
 import { TenantProfileCard } from "./TenantProfileCard";
 import { formatCurrency } from "@/lib/currency";
+import { formatDate } from "@/lib/date";
 
 const TENANCY_DOT: Record<string, string> = {
   ACTIVE: "bg-clay-600",
@@ -149,7 +150,7 @@ export default async function TenantDetailPage({ params }: { params: Promise<{ i
                                 href={`/dashboard/invoices/${invoice.id}`}
                                 className="font-medium text-zinc-900 transition-colors hover:text-clay-700"
                               >
-                                {invoice.periodStart.toISOString().slice(0, 10)} – {invoice.periodEnd.toISOString().slice(0, 10)}
+                                {formatDate(invoice.periodStart)} – {formatDate(invoice.periodEnd)}
                               </Link>
                               <span className="flex items-center gap-3 text-zinc-500">
                                 {formatCurrency(totalPaid)} / {formatCurrency(Number(invoice.amountDue))}
